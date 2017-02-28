@@ -1,5 +1,6 @@
 package com.customview.pranay.dasmusica.Models;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -7,17 +8,17 @@ import java.util.List;
  */
 
 public class AlbumPojo {
-    private Long id;
+    private String id;
     private String artist;
     private int numberOfSongs;
     private String albumName;
-    private List<SongsPojo> albumSongsList;
+    private List<SongsPojo> albumSongsList = new ArrayList<>();
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
