@@ -1,5 +1,160 @@
 <resources>
+
+    <dimen name="ic_more_height_phone">32dp</dimen>
+    <dimen name="ic_more_width_phone">32dp</dimen>
+
+    <dimen name="ic_more_height_tab">40dp</dimen>
+    <dimen name="ic_more_width_tab">40dp</dimen>
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="line_h_margin">7dp</dimen>
+    <dimen name="font_n">12sp</dimen>
+    <dimen name="font_header">18sp</dimen>
+    <dimen name="font_l">13sp</dimen>
+    <dimen name="font_ll">16sp</dimen>
+    <dimen name="font_s">10sp</dimen>
+    <dimen name="font_l7">17sp</dimen>
+    <dimen name="income_textsize">9sp</dimen>
+
+    <!--footer height-->
+    <dimen name="footer_height">52dp</dimen>
+    <dimen name="footer_height_tab">52dp</dimen>
+
+    <!--header height-->
+    <dimen name="header_height">56dp</dimen>
+    <dimen name="header_height_tab">60dp</dimen>
+
+    <dimen name="d1">1dp</dimen>
+    <dimen name="d2">2sp</dimen>
+    <dimen name="d3">3sp</dimen>
+    <dimen name="d4">4sp</dimen>
+    <dimen name="d5">5dp</dimen>
+    <dimen name="d6">6sp</dimen>
+    <dimen name="d7">7sp</dimen>
+    <dimen name="d8">8sp</dimen>
+    <dimen name="d9">9sp</dimen>
+    <dimen name="d10">10dp</dimen>
+    <dimen name="d11">11sp</dimen>
+    <dimen name="d12">12sp</dimen>
+    <dimen name="d13">13sp</dimen>
+    <dimen name="d14">14dp</dimen>
+    <dimen name="d15">15sp</dimen>
+    <dimen name="d16">16sp</dimen>
+    <dimen name="d17">17sp</dimen>
+    <dimen name="d18">18sp</dimen>
+    <dimen name="d19">19sp</dimen>
+    <dimen name="d20">20sp</dimen>
+    <dimen name="d21">21sp</dimen>
+    <dimen name="d25">21dp</dimen>
+    <dimen name="d40">40dp</dimen>
+    <dimen name="d30">30sp</dimen>
+    <dimen name="d31">31dp</dimen>
+    <dimen name="d33">33dp</dimen>
+    <dimen name="d35">35sp</dimen>
+    <!-- Dimension for all Buttons -->
+    <dimen name="dimen_horizontal_width">48dp</dimen>
+
+    <dimen name="houshold_gender_width">50sp</dimen>
+
+
+    <dimen name="dropdownRightPadding">40dp</dimen>
+    <dimen name="capchaBoxWidth">150dp</dimen>
+
+    <dimen name="filterPlushSize">35dp</dimen>
+    <dimen name="filterTopSpace">35dp</dimen>
+
+    <dimen name="gridImageSize">120dp</dimen>
+    <dimen name="info_marginTop">50dp</dimen>
+
+    <dimen name="back_w">50dp</dimen>
+    <dimen name="back_h">40dp</dimen>
+
+    <dimen name="app_setting_row_h">60dp</dimen>
+
+
+    <dimen name="radio_w">30dp</dimen>
+    <dimen name="radio_h">30dp</dimen>
+    <dimen name="accept_reject_40dp">40dp</dimen>
+
+
+    <dimen name="logout_w">65dp</dimen>
+    <dimen name="logout_h">25dp</dimen>
+
+
+    <dimen name="p1">1px</dimen>
+    <dimen name="p2">2px</dimen>
+    <dimen name="p3">3px</dimen>
+
+    <dimen name="apply_mar_top">30dp</dimen>
+
+
+    <!--           dimens -->
+
+
+    <!--<dimen name="houshold_gender_width">70dp</dimen>-->
+    <dimen name="text_size_header">18sp</dimen>
+    <dimen name="text_size_regular">15sp</dimen>
+    <dimen name="chat_size_header">16sp</dimen>
+    <dimen name="chat_size_np">14sp</dimen>
+    <dimen name="text_size_build_your_household">12sp</dimen>
+    <dimen name="text_size_application_step_header">15sp</dimen>
+
+
+    <dimen name="height_map_address_verification">240dp</dimen>
+    <dimen name="padding_left_enroll_screen">23dp</dimen>
+    <dimen name="padding_left_enroll_screen_second">10dp</dimen>
+
+    <dimen name="margin_left_list_line">10dp</dimen>
+    <dimen name="height_list_line">0.5dp</dimen>
+    <dimen name="height_list_line1">1.5dp</dimen>
+    <dimen name="padding_right_open_enroll">15dp</dimen>
+
+    <dimen name="padding_left_enroll_activity">5dp</dimen>
+    <dimen name="d60">60dp</dimen>
+    <dimen name="margin_right_list_line">10dp</dimen>
+    <dimen name="height_Textbox_family">27dp</dimen>
+
+    <dimen name="text_size_broker_id">12sp</dimen>
+    <dimen name="padding_3dp">3dp</dimen>
+    <dimen name="padding_5dp">5dp</dimen>
+    <dimen name="font_14">14sp</dimen>
+    <dimen name="font_12dp">12dp</dimen>
+
+    <!-- New Home Screen Dimensions-->
+    <dimen name="text_size">14sp</dimen>
+    <dimen name="layout_width_home_conference">25dp</dimen>
+    <dimen name="layout_marginTop_home_conference">40dp</dimen>
+    <dimen name="layout_marginBottom_home_conference">10dp</dimen>
+    <dimen name="layout_marginBottomSpe_home_conference">25dp</dimen>
+    <dimen name="imageView_padding_home_conference">12dp</dimen>
+    <dimen name="divider_line_height">1dp</dimen>
+    <dimen name="push_notifications_line_height">1.5dp</dimen>
+
+    <dimen name="text_size_17sp">17sp</dimen>
+    <dimen name="text_size_15sp">15sp</dimen>
+
+    <!--For grid view on home conf screen-->
+    <dimen name="grid_image_height">72dp</dimen>
+    <dimen name="grid_image_width">72dp</dimen>
+    <dimen name="grp_plan_type">36dp</dimen>
+
+
+    <dimen name="minWidthButtonsDefault">300dp</dimen>
+    <dimen name="horizontalMargin">40dp</dimen>
+
+    <dimen name="footerImageHW">24dp</dimen>
+    <dimen name="star_width">14dp</dimen>
+    <dimen name="star_height">14dp</dimen>
+    <dimen name="Step1HeaderText">10dp</dimen>
+    <dimen name="HeaderTextForGrandNew">9dp</dimen>
+    <dimen name="Step1BottomText">7dp</dimen>
+    <dimen name="header_text_720">6dp</dimen>
+
+    <!--font size change required for not yet rated-->
+    <dimen name="not_yet_rated_font">10sp</dimen>
+    <dimen name="text_size_home_conf_title">14sp</dimen>
+    <dimen name="font_date">13sp</dimen>
+
 </resources>

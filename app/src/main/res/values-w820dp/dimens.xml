@@ -1,6 +1,19 @@
 <resources>
-    <!-- Example customization of dimensions originally defined in res/values/dimens.xml
+
+    <!--
+         Example customization of dimensions originally defined in res/values/dimens.xml
          (such as screen margins) for screens with more than 820dp of available width. This
-         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
+         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively).
+    -->
     <dimen name="activity_horizontal_margin">64dp</dimen>
+    <dimen name="height_map_address_verification">820dp</dimen>
+
+    <!-- New Home Screen -->
+    <dimen name="text_size">26sp</dimen>
+    <dimen name="layout_width_home_conference">40dp</dimen>
+    <dimen name="layout_marginTop_home_conference">70dp</dimen>
+    <dimen name="layout_marginBottom_home_conference">40dp</dimen>
+    <dimen name="layout_marginBottomSpe_home_conference">50dp</dimen>
+    <dimen name="imageView_padding_home_conference">28dp</dimen>
+
 </resources>

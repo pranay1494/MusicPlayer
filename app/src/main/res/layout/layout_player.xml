@@ -37,11 +37,13 @@
             android:layout_height="30dp"
             app:srcCompat="@drawable/ic_favorite_black_24dp"
             android:layout_weight="1.5"
+            android:clickable="true"
             android:layout_gravity="center_vertical"/>
         <ImageView
             android:layout_width="0dp"
             android:layout_weight="1.5"
             android:layout_gravity="center"
+            android:clickable="true"
             app:srcCompat="@drawable/ic_more_vert_black_24dp"
             android:layout_height="30dp" />
     </LinearLayout>

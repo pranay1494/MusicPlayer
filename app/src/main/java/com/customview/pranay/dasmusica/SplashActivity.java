@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Typeface;
@@ -66,6 +67,8 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
 
         setMusicList();
         setAlbumSongsList();
+        Intent intent = new Intent(this,MainActivity.class);
+        startActivity(intent);
     }
 
     @Override

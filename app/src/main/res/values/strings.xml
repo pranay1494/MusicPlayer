@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DasMusica</string>
+    <string name="recent_activity">Recent Activity</string>
+    <string name="more">More</string>
 </resources>
