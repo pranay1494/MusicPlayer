@@ -20,6 +20,8 @@
 
         </FrameLayout>
 
+        <include layout="@layout/layout_player"/>
+
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
 </RelativeLayout>

@@ -1,6 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/slideHeader"
+        android:layout_width="match_parent"
+        android:layout_height="68dp"
+        android:orientation="horizontal"
+        android:weightSum="10"
+        android:layout_alignParentTop="true">
+        <ImageView
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/equalizer_view"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            app:srcCompat="@drawable/ic_close_black_24dp"
+            android:layout_gravity="center_vertical"/>
+        <TextView
+            android:id="@+id/tvMusicName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:gravity="center"
+            android:layout_weight="6"
+            android:maxLines="1"
+            android:layout_gravity="center_vertical"
+            android:text="The Awesome Sliding Up Panel"
+            android:textSize="16sp" />
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/ivFavorite"
+            android:layout_width="0dp"
+            android:layout_height="30dp"
+            app:srcCompat="@drawable/ic_favorite_black_24dp"
+            android:layout_weight="1.5"
+            android:layout_gravity="center_vertical"/>
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_weight="1.5"
+            android:layout_gravity="center"
+            app:srcCompat="@drawable/ic_more_vert_black_24dp"
+            android:layout_height="30dp" />
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vpPlayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/guitar"
+        android:layout_below="@+id/slideHeader"
+        android:layout_above="@+id/rlplayerControls">
+
+</android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/rlplayerControls"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:weightSum="10"
+        android:layout_alignParentBottom="true">
+        <include layout="@layout/layout_player_controls"/>
+    </LinearLayout>
+</RelativeLayout>

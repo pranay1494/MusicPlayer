@@ -10,6 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary=true
     }
     buildTypes {
         release {
@@ -28,6 +29,7 @@ dependencies {
     compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
     compile 'com.sothree.slidinguppanel:library:3.3.1'
     compile 'com.yalantis:eqwaves:1.0.1'
+    compile 'com.android.support:recyclerview-v7:24.1.1'
     compile 'com.android.support:appcompat-v7:24.2.1'
     testCompile 'junit:junit:4.12'
 }
