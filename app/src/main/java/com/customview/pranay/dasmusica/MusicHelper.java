@@ -9,9 +9,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
-import com.customview.pranay.dasmusica.Models.AlbumPojo;
-import com.customview.pranay.dasmusica.Models.MusicPOJO;
-import com.customview.pranay.dasmusica.Models.SongsPojo;
+import com.customview.pranay.dasmusica.models.AlbumPojo;
+import com.customview.pranay.dasmusica.models.MusicPOJO;
+import com.customview.pranay.dasmusica.models.SongsPojo;
 
 import java.util.ArrayList;
 import java.util.List;

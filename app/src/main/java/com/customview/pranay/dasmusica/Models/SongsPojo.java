@@ -1,4 +1,4 @@
-package com.customview.pranay.dasmusica.Models;
+package com.customview.pranay.dasmusica.models;
 
 /**
  * Created by Pranay on 17-02-2017.

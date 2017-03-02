@@ -16,13 +16,12 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.customview.pranay.dasmusica.Models.AlbumPojo;
-import com.customview.pranay.dasmusica.Models.MusicPOJO;
-import com.customview.pranay.dasmusica.Models.SongsPojo;
+import com.customview.pranay.dasmusica.models.AlbumPojo;
+import com.customview.pranay.dasmusica.models.MusicPOJO;
+import com.customview.pranay.dasmusica.models.SongsPojo;
 
 import java.util.ArrayList;
 import java.util.List;

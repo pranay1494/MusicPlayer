@@ -1,7 +1,6 @@
-package com.customview.pranay.dasmusica.Models;
+package com.customview.pranay.dasmusica.models;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Pranay on 27-02-2017.
