@@ -66,8 +66,6 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
 
         setMusicList();
         setAlbumSongsList();
-        Intent intent = new Intent(this,MainActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -135,15 +133,18 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         switch (loader.getId()){
             case 1:
-                SongsPojo songsPojo = new SongsPojo();
                 if (cursor != null && cursor.getCount() > 0) {
                     while (cursor.moveToNext()) {
+                        SongsPojo songsPojo = new SongsPojo();
                         setSongList(cursor, songsPojo);
+                        if (songsPojo.getId() != null){
+                            MusicPOJO.getInstance().setSong(songsPojo);
+                        }
                     }
                 }
-                if (songsPojo.getId() != null){
-                    MusicPOJO.getInstance().setSong(songsPojo);
-                }
+                //// TODO: 03-03-2017 change this logic
+                Intent intent = new Intent(this,MainActivity.class);
+                startActivity(intent);
                 break;
             case 2:
                 break;
