@@ -6,6 +6,9 @@ import java.util.ArrayList;
  * Created by Pranay on 27-02-2017.
  */
 
+/**
+ * Driver model
+ */
 public class MusicPOJO {
 
     public static MusicPOJO musicPOJO = null;

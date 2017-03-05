@@ -7,6 +7,9 @@ import java.util.List;
  * Created by Pranay on 17-02-2017.
  */
 
+/**
+ * Model for albums based songs.
+ */
 public class AlbumPojo {
     private String id;
     private String artist;

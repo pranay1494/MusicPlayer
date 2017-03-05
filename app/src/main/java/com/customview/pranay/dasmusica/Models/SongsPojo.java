@@ -4,6 +4,9 @@ package com.customview.pranay.dasmusica.models;
  * Created by Pranay on 17-02-2017.
  */
 
+/**
+ * songs main model
+ */
 public class SongsPojo {
     private String title;
     private String artist;
