@@ -3,9 +3,6 @@ package com.customview.pranay.dasmusica.fragment;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,12 +11,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.adapter.DashBoardAlbumsAdapter;
 import com.customview.pranay.dasmusica.adapter.DashboardAdapter;
-import com.customview.pranay.dasmusica.utils.Utilities;
 
 /**
  * Created by Pranay on 02-03-2017.
@@ -56,9 +51,6 @@ public class DashBoardFragment extends Fragment implements View.OnClickListener{
         super.onViewCreated(view, savedInstanceState);
         RecyclerView rvDashboard = (RecyclerView) view.findViewById(R.id.rvRecentActivity);
         RecyclerView rvAlbums = (RecyclerView) view.findViewById(R.id.rvAlbums);
-        LinearLayout parentLayout = (LinearLayout)view.findViewById(R.id.llDashboard);
-        /*Bitmap bitmap = Utilities.blur(BitmapFactory.decodeResource(getResources(),R.drawable.guitar,null),context);
-        parentLayout.setBackground(new BitmapDrawable(bitmap));*/
         /**
          * For Recent Activity List.
          */
