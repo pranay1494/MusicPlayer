@@ -15,6 +15,25 @@ public class AlbumPojo {
     private String artist;
     private int numberOfSongs;
     private String albumName;
+    private String albumArtUri;
+    private Long albumID;
+
+    public Long getAlbumID() {
+        return albumID;
+    }
+
+    public void setAlbumID(Long albumID) {
+        this.albumID = albumID;
+    }
+
+    public String getAlbumArtUri() {
+        return albumArtUri;
+    }
+
+    public void setAlbumArtUri(String albumArtUri) {
+        this.albumArtUri = albumArtUri;
+    }
+
     private List<SongsPojo> albumSongsList = new ArrayList<>();
 
     public String getId() {

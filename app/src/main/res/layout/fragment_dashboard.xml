@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:id="@+id/llDashboard"
     android:layout_height="match_parent">
 
+<android.support.v4.widget.NestedScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -52,5 +56,48 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/d10" />
         </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/rlAlbums"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/d25">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/d35"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/d15"
+                android:gravity="center"
+                android:text="Albums"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/d21"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/btnMoreForAlbums"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/d35"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/logout_h"
+                android:background="@color/colorPrimary"
+                android:text="@string/more"
+                android:textColor="@android:color/white" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvAlbums"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/d10" />
+        </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+</android.support.v4.widget.NestedScrollView>
+</LinearLayout>

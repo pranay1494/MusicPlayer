@@ -100,6 +100,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                 albumPojo.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID)));
                 albumPojo.setAlbumName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM)));
                 albumPojo.setArtist(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST)));
+                albumPojo.setAlbumArtUri(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART)));
                 albumPojo.setNumberOfSongs(Integer.parseInt(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.NUMBER_OF_SONGS))));
                 MusicPOJO.getInstance().addAlbum(albumPojo);
             }
