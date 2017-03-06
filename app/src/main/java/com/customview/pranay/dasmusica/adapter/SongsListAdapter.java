@@ -1,4 +1,4 @@
-package com.customview.pranay.dasmusica.adapters;
+package com.customview.pranay.dasmusica.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.customview.pranay.dasmusica.R;
-import com.customview.pranay.dasmusica.models.MusicPOJO;
+import com.customview.pranay.dasmusica.model.MusicPOJO;
 
 /**
  * Created by Pranay on 03-03-2017.

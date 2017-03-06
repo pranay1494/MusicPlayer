@@ -1,4 +1,4 @@
-package com.customview.pranay.dasmusica.fragments;
+package com.customview.pranay.dasmusica.fragment;
 
 import android.app.Fragment;
 import android.content.Context;
@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.customview.pranay.dasmusica.R;
-import com.customview.pranay.dasmusica.adapters.SongsListAdapter;
+import com.customview.pranay.dasmusica.adapter.SongsListAdapter;
 import com.github.florent37.hollyviewpager.HollyViewPager;
 import com.github.florent37.hollyviewpager.HollyViewPagerBus;
 

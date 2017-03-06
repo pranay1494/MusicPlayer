@@ -1,4 +1,4 @@
-package com.customview.pranay.dasmusica.models;
+package com.customview.pranay.dasmusica.model;
 
 import java.util.ArrayList;
 import java.util.List;

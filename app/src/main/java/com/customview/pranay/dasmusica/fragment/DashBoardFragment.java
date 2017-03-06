@@ -1,8 +1,7 @@
-package com.customview.pranay.dasmusica.fragments;
+package com.customview.pranay.dasmusica.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,9 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.customview.pranay.dasmusica.R;
-import com.customview.pranay.dasmusica.adapters.DashboardAdapter;
-
-import java.util.zip.Inflater;
+import com.customview.pranay.dasmusica.adapter.DashboardAdapter;
 
 /**
  * Created by Pranay on 02-03-2017.

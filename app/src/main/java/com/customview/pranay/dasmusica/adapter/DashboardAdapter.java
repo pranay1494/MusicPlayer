@@ -1,4 +1,4 @@
-package com.customview.pranay.dasmusica.adapters;
+package com.customview.pranay.dasmusica.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,14 +8,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.customview.pranay.dasmusica.MusicHelper;
 import com.customview.pranay.dasmusica.R;
-import com.customview.pranay.dasmusica.models.MusicPOJO;
-import com.customview.pranay.dasmusica.models.SongsPojo;
+import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.SongsPojo;
 
 import java.util.ArrayList;
 

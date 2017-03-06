@@ -19,9 +19,9 @@ import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.customview.pranay.dasmusica.models.AlbumPojo;
-import com.customview.pranay.dasmusica.models.MusicPOJO;
-import com.customview.pranay.dasmusica.models.SongsPojo;
+import com.customview.pranay.dasmusica.model.AlbumPojo;
+import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.SongsPojo;
 
 import java.util.ArrayList;
 import java.util.List;

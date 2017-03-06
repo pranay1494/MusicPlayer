@@ -15,9 +15,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
-import com.customview.pranay.dasmusica.fragments.DashBoardFragment;
-import com.customview.pranay.dasmusica.fragments.SongsListFragment;
-import com.customview.pranay.dasmusica.models.MusicPOJO;
+import com.customview.pranay.dasmusica.fragment.DashBoardFragment;
+import com.customview.pranay.dasmusica.fragment.SongsListFragment;
+import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.github.florent37.hollyviewpager.HollyViewPager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
