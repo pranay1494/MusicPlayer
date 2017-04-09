@@ -19,11 +19,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.customview.pranay.dasmusica.comparator.MusicListComparator;
 import com.customview.pranay.dasmusica.model.AlbumPojo;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.model.SongsPojo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -143,6 +145,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                         }
                     }
                 }
+                Collections.sort(MusicPOJO.getInstance().getSongsList(),new MusicListComparator());
                 //// TODO: 03-03-2017 change this logic
                 Intent intent = new Intent(this,MainActivity.class);
                 startActivity(intent);
