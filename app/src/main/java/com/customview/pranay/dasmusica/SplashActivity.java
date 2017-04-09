@@ -125,7 +125,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         switch (id){
             case 1:
-                return new CursorLoader(SplashActivity.this,musicUri,null,musicSelectionArgs,null,null);
+                return new CursorLoader(SplashActivity.this,musicUri,null,musicSelectionArgs,null,MediaStore.Audio.Media.TITLE);
             case 2:
                 break;
         }
@@ -145,7 +145,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                         }
                     }
                 }
-                Collections.sort(MusicPOJO.getInstance().getSongsList(),new MusicListComparator());
+//                Collections.sort(MusicPOJO.getInstance().getSongsList(),new MusicListComparator());
                 //// TODO: 03-03-2017 change this logic
                 Intent intent = new Intent(this,MainActivity.class);
                 startActivity(intent);
