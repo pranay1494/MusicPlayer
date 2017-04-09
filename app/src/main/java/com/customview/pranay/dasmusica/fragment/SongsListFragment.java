@@ -1,9 +1,9 @@
 package com.customview.pranay.dasmusica.fragment;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.adapter.SongsListAdapter;
+import com.futuremind.recyclerviewfastscroll.FastScroller;
 import com.github.florent37.hollyviewpager.HollyViewPager;
 import com.github.florent37.hollyviewpager.HollyViewPagerBus;
 
@@ -19,10 +20,11 @@ import com.github.florent37.hollyviewpager.HollyViewPagerBus;
  * Created by Pranay on 03-03-2017.
  */
 
-public class SongsListFragment extends Fragment{
+public class SongsListFragment extends Fragment {
     private RecyclerView recyclerView;
     private HollyViewPager viewPager;
     private Context context;
+    private FastScroller fastScroller;
 
     @Override
     public void onAttach(Context context) {
@@ -39,10 +41,13 @@ public class SongsListFragment extends Fragment{
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         recyclerView = (RecyclerView) view.findViewById(R.id.rvSongsList);
+        fastScroller = (FastScroller) view.findViewById(R.id.fastscroll);
+
         SongsListAdapter adapter = new SongsListAdapter(context);
         LinearLayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+        fastScroller.setRecyclerView(recyclerView);
 
         HollyViewPagerBus.registerRecyclerView(getActivity(), recyclerView);
     }

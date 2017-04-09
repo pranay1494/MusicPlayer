@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +14,23 @@ import android.widget.TextView;
 
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
 
 /**
  * Created by Pranay on 03-03-2017.
  */
 
-public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SectionTitleProvider {
 
     protected static final int TYPE_HEADER = 0;
     protected static final int TYPE_CELL = 1;
     private Context context;
+    private android.media.MediaMetadataRetriever mmr = null;
 
     public SongsListAdapter(Context context) {
         this.context = context;
+        mmr = new MediaMetadataRetriever();
+
     }
 
     @Override
@@ -59,6 +64,15 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return MusicPOJO.getInstance().getSongsList().size();
     }
 
+    @Override
+    public String getSectionTitle(int position) {
+        String sectionedText = "";
+        if (MusicPOJO.getInstance().getSongsList()!=null && !TextUtils.isEmpty(MusicPOJO.getInstance().getSongsList().get(position).getTitle())) {
+            sectionedText = MusicPOJO.getInstance().getSongsList().get(position).getTitle().substring(0, 1);
+        }
+        return sectionedText;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder{
         ImageView albumArt;
         TextView songName;
@@ -71,10 +85,14 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
     private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
-        android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(s);
+        byte [] data = null;
+        try {
+           mmr.setDataSource(s);
+           data = mmr.getEmbeddedPicture();
+       }catch (Exception e){
+           e.printStackTrace();
+       }
 
-        byte [] data = mmr.getEmbeddedPicture();
         if(data != null)
         {
             Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);

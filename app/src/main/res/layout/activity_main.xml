@@ -13,19 +13,21 @@
         sothree:umanoPanelHeight="68dp"
         sothree:umanoShadowHeight="4dp">
 
-        <LinearLayout
+        <!--<LinearLayout
             android:orientation="vertical"
             android:id="@+id/primaryFrame"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <!--<com.github.florent37.hollyviewpager.HollyViewPager
+            &lt;!&ndash;<com.github.florent37.hollyviewpager.HollyViewPager
                 android:id="@+id/hollyViewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:hvp_headerHeight="150dp"
-                android:visibility="gone"/>-->
-        </LinearLayout>
+                android:visibility="gone"/>&ndash;&gt;
+        </LinearLayout>-->
 
+
+        <include layout="@layout/layout_tabs" />
         <include layout="@layout/layout_player" />
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>

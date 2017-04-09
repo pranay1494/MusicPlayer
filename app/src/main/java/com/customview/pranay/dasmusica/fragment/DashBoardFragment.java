@@ -66,7 +66,6 @@ public class DashBoardFragment extends Fragment implements View.OnClickListener{
                 clicked.btnClicked(true);
             }
         });
-
         /**
          * For Album Art List.
          */
