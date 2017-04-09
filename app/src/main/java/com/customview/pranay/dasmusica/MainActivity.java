@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.customview.pranay.dasmusica.fragment.DashBoardFragment;
 import com.customview.pranay.dasmusica.fragment.SongsListFragment;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.pagetransformers.ZoomOutPageTransformer;
 import com.github.florent37.hollyviewpager.HollyViewPager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
         viewPagerAdapter.add(new SongsListFragment(),"Genere");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(2);
+        viewPager.setPageTransformer(false,new ZoomOutPageTransformer());
     }
 
     @Override
