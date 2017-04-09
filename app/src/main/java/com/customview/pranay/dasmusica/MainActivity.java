@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.customview.pranay.dasmusica.fragment.DashBoardFragment;
 import com.customview.pranay.dasmusica.fragment.SongsListFragment;
@@ -36,6 +38,14 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private AppBarLayout appbar;
+
+    public enum CollapsingToolbarLayoutState {
+        EXPANDED,
+        COLLAPSED,
+        INTERNEDTATE
+    }
+    private CollapsingToolbarLayoutState mLayoutState = CollapsingToolbarLayoutState.EXPANDED;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
         ivFavorite = (ImageView) findViewById(R.id.ivFavorite);
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+        appbar = (AppBarLayout) findViewById(R.id.appbar);
+
         slidingUpPanel = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
 
@@ -58,7 +70,34 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
         transaction.commit();*/
 
         setupTabs();
+        offsetchangeListening();
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void offsetchangeListening() {
+        appbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+            @Override
+            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                if (verticalOffset == 0) {
+                    if (mLayoutState != CollapsingToolbarLayoutState.EXPANDED) {
+                        mLayoutState = CollapsingToolbarLayoutState.EXPANDED;
+                        Toast.makeText(MainActivity.this, "expanded", Toast.LENGTH_SHORT).show();
+                    }
+                } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
+                    if (mLayoutState != CollapsingToolbarLayoutState.COLLAPSED) {
+                        mLayoutState = CollapsingToolbarLayoutState.COLLAPSED;
+                        Toast.makeText(MainActivity.this, "collapsed", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if (mLayoutState != CollapsingToolbarLayoutState.INTERNEDTATE) {
+                        if (mLayoutState == CollapsingToolbarLayoutState.COLLAPSED) {
+                            Toast.makeText(MainActivity.this, "Intermediate", Toast.LENGTH_SHORT).show();
+                        }
+                        mLayoutState = CollapsingToolbarLayoutState.INTERNEDTATE;
+                    }
+                }
+            }
+        });
     }
 
     private void setupTabs() {
@@ -67,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
         viewPagerAdapter.add(new SongsListFragment(),"Albums");
         viewPagerAdapter.add(new SongsListFragment(),"Genere");
         viewPager.setAdapter(viewPagerAdapter);
+        viewPager.setOffscreenPageLimit(2);
     }
 
     @Override
