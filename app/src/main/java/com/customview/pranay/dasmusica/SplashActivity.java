@@ -149,6 +149,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                 //// TODO: 03-03-2017 change this logic
                 Intent intent = new Intent(this,MainActivity.class);
                 startActivity(intent);
+                finish();
                 break;
             case 2:
                 break;

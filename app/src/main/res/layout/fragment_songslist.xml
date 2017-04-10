@@ -16,6 +16,7 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/d10"
         app:fastscroll__handleColor="#8f93d1"
         app:fastscroll__bubbleColor="#5e64ce"
         android:layout_alignParentRight="true"/>

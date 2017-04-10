@@ -1,5 +1,6 @@
 package com.customview.pranay.dasmusica.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -84,24 +85,39 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             artistName = (TextView) itemView.findViewById(R.id.songArtist);
         }
     }
-    private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
-        byte [] data = null;
-        try {
-           mmr.setDataSource(s);
-           data = mmr.getEmbeddedPicture();
-       }catch (Exception e){
-           e.printStackTrace();
-       }
+    private void getAlbumArtWithoutLibrary(final String s, final ImageView albumArt) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                byte [] data = null;
+                try {
+                    mmr.setDataSource(s);
+                    data = mmr.getEmbeddedPicture();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                if(data != null)
+                {
+                    final Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            albumArt.setImageBitmap(bitmap);
+                        }
+                    });
+                }
+                else
+                {
+                    ((Activity)context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            albumArt.setImageResource(R.drawable.guitar);
+                        }
+                    });
+                }
+            }
+        }).start();
 
-        if(data != null)
-        {
-            Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            albumArt.setImageBitmap(bitmap);
-        }
-        else
-        {
-            albumArt.setImageResource(R.drawable.guitar);
-        }
     }
 
 }
