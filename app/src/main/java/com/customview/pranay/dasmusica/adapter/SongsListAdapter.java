@@ -1,6 +1,5 @@
 package com.customview.pranay.dasmusica.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
@@ -85,39 +85,26 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             artistName = (TextView) itemView.findViewById(R.id.songArtist);
         }
     }
-    private void getAlbumArtWithoutLibrary(final String s, final ImageView albumArt) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                byte [] data = null;
-                try {
-                    mmr.setDataSource(s);
-                    data = mmr.getEmbeddedPicture();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                if(data != null)
-                {
-                    final Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    ((Activity)context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            albumArt.setImageBitmap(bitmap);
-                        }
-                    });
-                }
-                else
-                {
-                    ((Activity)context).runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            albumArt.setImageResource(R.drawable.guitar);
-                        }
-                    });
-                }
-            }
-        }).start();
+    private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
+        byte [] data = null;
+        try {
+           mmr.setDataSource(s);
+           data = mmr.getEmbeddedPicture();
+       }catch (Exception e){
+           e.printStackTrace();
+       }
 
+        if(data != null)
+        {
+            /*Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+            albumArt.setImageBitmap(bitmap);*/
+            Glide.with(context).load(data).centerCrop().into(albumArt);
+        }
+        else
+        {
+//            albumArt.setImageResource(R.drawable.guitar);
+            Glide.with(context).load(R.drawable.guitar).centerCrop().into(albumArt);
+        }
     }
 
 }

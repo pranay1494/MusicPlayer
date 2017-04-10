@@ -21,12 +21,16 @@ android {
         }
     }
 }
-
+repositories {
+    mavenCentral()
+}
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.android.support:support-v4:24.1.0'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.github.florent37:hollyviewpager:1.0.1'
     compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.14'
