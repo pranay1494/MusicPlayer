@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rlNextSongForAppBar"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:layout_marginRight="@dimen/d20"
+    android:layout_marginLeft="@dimen/d20">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bgnowplaying"
+        android:padding="10dp"
+        android:gravity="center_vertical"
+        android:textColor="#fff"
+        android:drawablePadding="10dp"
+        android:drawableLeft="@drawable/ic_skip_next_white_24dp"
+        android:text="Next Song"/>
+</RelativeLayout>

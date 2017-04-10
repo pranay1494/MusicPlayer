@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/capchaBoxWidth"
+    android:orientation="vertical"
+    android:layout_marginLeft="@dimen/d10"
+    android:layout_marginRight="@dimen/d10"
+    android:layout_marginTop="@dimen/d20"
+    android:layout_gravity="center">
+<RelativeLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/llNowPlaying"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginRight="@dimen/logout_h"
+            android:maxLength="10"
+            android:text="Next Song"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/d21"
+            android:textStyle="bold" />
+
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ivnextSong"
+            android:layout_width="@dimen/dropdownRightPadding"
+            android:layout_height="@dimen/dropdownRightPadding"
+            android:layout_margin="10dp"
+            android:src="@drawable/guitar"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="2dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/llNowPlaying">
+
+        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ivThisSong"
+            android:layout_width="@dimen/dropdownRightPadding"
+            android:layout_height="@dimen/dropdownRightPadding"
+            android:layout_margin="10dp"
+            android:src="@drawable/guitar"
+            app:civ_border_color="#FF000000"
+            app:civ_border_width="2dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/logout_h"
+            android:maxLength="20"
+            android:text="Current song"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/d21"
+            android:textStyle="bold" />
+    </LinearLayout>
+</RelativeLayout>
 </LinearLayout>
