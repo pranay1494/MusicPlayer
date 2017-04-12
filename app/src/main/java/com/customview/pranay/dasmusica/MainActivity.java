@@ -1,11 +1,15 @@
 package com.customview.pranay.dasmusica;
 
 import android.app.FragmentTransaction;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -33,15 +37,17 @@ import android.widget.Toast;
 
 import com.customview.pranay.dasmusica.fragment.DashBoardFragment;
 import com.customview.pranay.dasmusica.fragment.SongsListFragment;
+import com.customview.pranay.dasmusica.interfaces.SongSelected;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.pagetransformers.ZoomOutPageTransformer;
+import com.customview.pranay.dasmusica.service.MusicService;
 import com.github.florent37.hollyviewpager.HollyViewPager;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements DashBoardFragment.BtnmoreClicked{
+public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated {
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
@@ -53,6 +59,36 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
     private AnimationSet mHideSet;
     private LinearLayout llAppBarNowPlaying;
     private RelativeLayout rlNextSongForAppBar;
+    public MusicService musicService;
+    private boolean mServiceBound;
+    private Intent playerIntent;
+
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mServiceBound = true;
+            MusicService.MyBinder binder = (MusicService.MyBinder) service;
+            musicService = binder.getService();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mServiceBound = false;
+        }
+    };
+
+    @Override
+    public void songToPlay(int position) {
+        //get data from now playing list
+
+    }
+
+    @Override
+    public void nowPlayingListUpdated(boolean listUpdated) {
+        if (listUpdated){
+            play();
+        }
+    }
 
     public enum CollapsingToolbarLayoutState {
         EXPANDED,
@@ -80,10 +116,6 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
 
         slidingUpPanel = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
-
-        /*FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.add(R.id.primaryFrame,new DashBoardFragment(),"DashBoard Fragment");
-        transaction.commit();*/
 
         setupTabs();
         showAnim();
@@ -170,16 +202,6 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
         mHideSet.addAnimation(hiddenAction);
         mHideSet.setDuration(300);
     }
-    @Override
-    public void btnClicked(boolean clicked) {
-        if (clicked){
-//            FragmentTransaction transaction = getFragmentManager().beginTransaction();
-//            transaction.replace(R.id.primaryFrame,new SongsListFragment(),"SongsList Fragment");
-//            transaction.addToBackStack(null);
-//            transaction.commit();
-           // viewPager.setVisibility(View.VISIBLE);
-        }
-    }
 
     private class ViewPagerAdapter extends FragmentPagerAdapter{
         private List<Fragment> fragmentList = new ArrayList<>();
@@ -208,5 +230,19 @@ public class MainActivity extends AppCompatActivity implements DashBoardFragment
         public CharSequence getPageTitle(int position) {
             return fragmentTitleList.get(position);
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (playerIntent == null){
+            playerIntent = new Intent(MainActivity.this,MusicService.class);
+            bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+            startService(playerIntent);
+        }
+    }
+
+    public void play(){
+        musicService.playSong();
     }
 }

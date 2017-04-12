@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -15,7 +16,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.SongsPojo;
 import com.futuremind.recyclerviewfastscroll.SectionTitleProvider;
+
+import java.util.ArrayList;
 
 /**
  * Created by Pranay on 03-03-2017.
@@ -26,12 +30,13 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     protected static final int TYPE_HEADER = 0;
     protected static final int TYPE_CELL = 1;
     private Context context;
+    private SongClicked songClickedCallback;
     private android.media.MediaMetadataRetriever mmr = null;
 
-    public SongsListAdapter(Context context) {
+    public SongsListAdapter(Context context,SongClicked clicked) {
         this.context = context;
+        songClickedCallback = clicked;
         mmr = new MediaMetadataRetriever();
-
     }
 
     @Override
@@ -43,12 +48,26 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder.getItemViewType() == TYPE_CELL) {
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.songName.setText(MusicPOJO.getInstance().getSongsList().get(position).getTitle());
             viewHolder.artistName.setText(MusicPOJO.getInstance().getSongsList().get(position).getArtist());
             getAlbumArtWithoutLibrary(MusicPOJO.getInstance().getSongsList().get(position).getPath(), viewHolder.albumArt);
+            viewHolder.cardSongs.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    MusicPOJO musicPOJO = MusicPOJO.getInstance();
+                    ArrayList<SongsPojo> list = new ArrayList<>(musicPOJO.getSongsList());
+                    musicPOJO.clearNowPlayingList();
+                    musicPOJO.setIndexOfCurrentSong(position);
+                    musicPOJO.setNowPlayingList(list);
+                    if(position<=musicPOJO.getNowPlayingList().size()) {
+                        musicPOJO.getNowPlayingList().get(position).setPalying(true);
+                        songClickedCallback.songclicked(true);
+                    }
+                }
+            });
         }
     }
 
@@ -78,11 +97,13 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         ImageView albumArt;
         TextView songName;
         TextView artistName;
+        CardView cardSongs;
         public ViewHolder(View itemView) {
             super(itemView);
             albumArt = (ImageView) itemView.findViewById(R.id.albumArt);
             songName = (TextView) itemView.findViewById(R.id.songTitle);
             artistName = (TextView) itemView.findViewById(R.id.songArtist);
+            cardSongs = (CardView) itemView.findViewById(R.id.cardSongs);
         }
     }
     private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
@@ -107,4 +128,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
+    public interface SongClicked{
+        void songclicked(boolean clicked);
+    }
 }

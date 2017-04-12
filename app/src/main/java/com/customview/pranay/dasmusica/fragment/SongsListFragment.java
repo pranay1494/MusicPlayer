@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.customview.pranay.dasmusica.MainActivity;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.adapter.SongsListAdapter;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
@@ -22,14 +23,15 @@ import com.github.florent37.hollyviewpager.HollyViewPagerBus;
 
 public class SongsListFragment extends Fragment {
     private RecyclerView recyclerView;
-    private HollyViewPager viewPager;
     private Context context;
     private FastScroller fastScroller;
+    private SongListUpdated songListUpdated;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
+        songListUpdated = (SongListUpdated) context;
     }
 
     @Nullable
@@ -43,12 +45,19 @@ public class SongsListFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.rvSongsList);
         fastScroller = (FastScroller) view.findViewById(R.id.fastscroll);
 
-        SongsListAdapter adapter = new SongsListAdapter(context);
+        SongsListAdapter adapter = new SongsListAdapter(context, new SongsListAdapter.SongClicked() {
+            @Override
+            public void songclicked(boolean clicked) {
+                if (clicked)
+                    songListUpdated.nowPlayingListUpdated(true);
+            }
+        });
         LinearLayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         fastScroller.setRecyclerView(recyclerView);
-
-        HollyViewPagerBus.registerRecyclerView(getActivity(), recyclerView);
+    }
+    public interface SongListUpdated{
+        void nowPlayingListUpdated(boolean listUpdated);
     }
 }
