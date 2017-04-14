@@ -26,6 +26,7 @@ public class SongsListFragment extends Fragment {
     private Context context;
     private FastScroller fastScroller;
     private SongListUpdated songListUpdated;
+    private SongsListAdapter adapter;
 
     @Override
     public void onAttach(Context context) {
@@ -45,11 +46,14 @@ public class SongsListFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.rvSongsList);
         fastScroller = (FastScroller) view.findViewById(R.id.fastscroll);
 
-        SongsListAdapter adapter = new SongsListAdapter(context, new SongsListAdapter.SongClicked() {
+        adapter = new SongsListAdapter(context, recyclerView,new SongsListAdapter.SongClicked() {
             @Override
             public void songclicked(boolean clicked) {
-                if (clicked)
+                if (clicked) {
                     songListUpdated.nowPlayingListUpdated(true);
+                    adapter.notifyDataSetChanged();
+                    recyclerView.invalidate();
+                }
             }
         });
         LinearLayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);

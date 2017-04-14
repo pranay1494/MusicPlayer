@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -32,11 +33,13 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private Context context;
     private SongClicked songClickedCallback;
     private android.media.MediaMetadataRetriever mmr = null;
+    private RecyclerView recyclerView;
 
-    public SongsListAdapter(Context context,SongClicked clicked) {
+    public SongsListAdapter(Context context, RecyclerView recyclerView, SongClicked clicked) {
         this.context = context;
         songClickedCallback = clicked;
         mmr = new MediaMetadataRetriever();
+        this.recyclerView = recyclerView;
     }
 
     @Override
@@ -68,6 +71,16 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 }
             });
+            if (MusicPOJO.getInstance().getSongsList()!=null && MusicPOJO.getInstance().getNowPlayingList()!=null && MusicPOJO.getInstance().getNowPlayingList().size()>0){
+                SongsPojo songsPojo = MusicPOJO.getInstance().getSongsList().get(position);
+                SongsPojo current = MusicPOJO.getInstance().getNowPlayingList().get(MusicPOJO.getInstance().getIndexOfCurrentSong());
+                if (songsPojo.getId().equals(current.getId())){
+                    viewHolder.rlSongs.setBackground(context.getResources().getDrawable(R.drawable.currentlyplaying_row));
+                    recyclerView.invalidate();
+                }else{
+                    viewHolder.rlSongs.setBackground(null);
+                }
+            }
         }
     }
 
@@ -98,12 +111,14 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         TextView songName;
         TextView artistName;
         CardView cardSongs;
+        RelativeLayout rlSongs;
         public ViewHolder(View itemView) {
             super(itemView);
             albumArt = (ImageView) itemView.findViewById(R.id.albumArt);
             songName = (TextView) itemView.findViewById(R.id.songTitle);
             artistName = (TextView) itemView.findViewById(R.id.songArtist);
             cardSongs = (CardView) itemView.findViewById(R.id.cardSongs);
+            rlSongs = (RelativeLayout) itemView.findViewById(R.id.rlsongs);
         }
     }
     private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
@@ -115,15 +130,10 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
            e.printStackTrace();
        }
 
-        if(data != null)
-        {
-            /*Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-            albumArt.setImageBitmap(bitmap);*/
+        if(data != null) {
             Glide.with(context).load(data).centerCrop().into(albumArt);
         }
-        else
-        {
-//            albumArt.setImageResource(R.drawable.guitar);
+        else {
             Glide.with(context).load(R.drawable.guitar).centerCrop().into(albumArt);
         }
     }
