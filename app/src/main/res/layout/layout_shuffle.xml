@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView android:layout_height="@dimen/app_setting_row_h"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" >
 <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/llShuffle"
     android:layout_height="@dimen/app_setting_row_h"
@@ -18,3 +21,4 @@
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/d30"/>
 </LinearLayout>
+    </android.support.v7.widget.CardView>

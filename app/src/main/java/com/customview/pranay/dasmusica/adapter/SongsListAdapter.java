@@ -50,28 +50,28 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         if (holder.getItemViewType() == TYPE_CELL) {
-            ViewHolder viewHolder = (ViewHolder) holder;
-            viewHolder.songName.setText(MusicPOJO.getInstance().getSongsList().get(position).getTitle());
-            viewHolder.artistName.setText(MusicPOJO.getInstance().getSongsList().get(position).getArtist());
-            getAlbumArtWithoutLibrary(MusicPOJO.getInstance().getSongsList().get(position).getPath(), viewHolder.albumArt);
+            final ViewHolder viewHolder = (ViewHolder) holder;
+            viewHolder.songName.setText(MusicPOJO.getInstance().getSongsList().get(position-1).getTitle());
+            viewHolder.artistName.setText(MusicPOJO.getInstance().getSongsList().get(position-1).getArtist());
+            getAlbumArtWithoutLibrary(MusicPOJO.getInstance().getSongsList().get(position-1).getPath(), viewHolder.albumArt);
             viewHolder.cardSongs.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     MusicPOJO musicPOJO = MusicPOJO.getInstance();
                     ArrayList<SongsPojo> list = new ArrayList<>(musicPOJO.getSongsList());
                     musicPOJO.clearNowPlayingList();
-                    musicPOJO.setIndexOfCurrentSong(position);
+                    musicPOJO.setIndexOfCurrentSong(viewHolder.getAdapterPosition()-1);
                     musicPOJO.setNowPlayingList(list);
-                    if(position<=musicPOJO.getNowPlayingList().size()) {
-                        musicPOJO.getNowPlayingList().get(position).setPalying(true);
+                    if(viewHolder.getAdapterPosition()-1<=musicPOJO.getNowPlayingList().size()) {
+                        musicPOJO.getNowPlayingList().get(viewHolder.getAdapterPosition()-1).setPalying(true);
                         songClickedCallback.songclicked(true, false);
                     }
                 }
             });
             if (MusicPOJO.getInstance().getSongsList()!=null && MusicPOJO.getInstance().getNowPlayingList()!=null && MusicPOJO.getInstance().getNowPlayingList().size()>0){
-                SongsPojo songsPojo = MusicPOJO.getInstance().getSongsList().get(position);
+                SongsPojo songsPojo = MusicPOJO.getInstance().getSongsList().get(position-1);
                 SongsPojo current = MusicPOJO.getInstance().getNowPlayingList().get(MusicPOJO.getInstance().getIndexOfCurrentSong());
                 if (songsPojo.getId().equals(current.getId())){
                     viewHolder.rlSongs.setBackground(context.getResources().getDrawable(R.drawable.currentlyplaying_row));
@@ -103,7 +103,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        if (MusicPOJO.getInstance().getSongsList() != null)
+        if (MusicPOJO.getInstance().getSongsList() != null && MusicPOJO.getInstance().getSongsList().size()>0)
             return MusicPOJO.getInstance().getSongsList().size()+1;
         return 0;
     }
@@ -111,8 +111,8 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public String getSectionTitle(int position) {
         String sectionedText = "";
-        if (MusicPOJO.getInstance().getSongsList()!=null && !TextUtils.isEmpty(MusicPOJO.getInstance().getSongsList().get(position).getTitle())) {
-            sectionedText = MusicPOJO.getInstance().getSongsList().get(position).getTitle().substring(0, 1);
+        if (position!=0 &&MusicPOJO.getInstance().getSongsList()!=null &&MusicPOJO.getInstance().getSongsList().size()>0 && !TextUtils.isEmpty(MusicPOJO.getInstance().getSongsList().get(position-1).getTitle())) {
+            sectionedText = MusicPOJO.getInstance().getSongsList().get(position-1).getTitle().substring(0, 1);
         }
         return sectionedText;
     }

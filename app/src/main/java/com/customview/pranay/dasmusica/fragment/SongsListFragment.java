@@ -9,7 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
+import com.customview.pranay.dasmusica.MainActivity;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.adapter.SongsListAdapter;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
@@ -29,6 +31,8 @@ public class SongsListFragment extends Fragment {
     private FastScroller fastScroller;
     private SongListUpdated songListUpdated;
     private SongsListAdapter adapter;
+    private MusicPOJO music;
+    private LinearLayoutManager layoutManager;
 
     @Override
     public void onAttach(Context context) {
@@ -47,6 +51,7 @@ public class SongsListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         recyclerView = (RecyclerView) view.findViewById(R.id.rvSongsList);
         fastScroller = (FastScroller) view.findViewById(R.id.fastscroll);
+        music = MusicPOJO.getInstance();
 
         adapter = new SongsListAdapter(context, recyclerView,new SongsListAdapter.SongClicked() {
             @Override
@@ -63,12 +68,6 @@ public class SongsListFragment extends Fragment {
                         MusicPOJO.getInstance().setNowPlayingList(list);
                         MusicPOJO.getInstance().setIndexOfCurrentSong(0);
                         MusicPOJO.getInstance().getNowPlayingList().get(0).setPalying(true);
-                    //// TODO: 14/04/2017 compplete this
-                        /*    for (SongsPojo song : MusicPOJO.getInstance().getSongsList()) {
-                            if (song.getId().equals(MusicPOJO.getInstance().getNowPlayingList().get(MusicPOJO.getInstance().getIndexOfCurrentSong()))){
-
-                            }
-                        }*/
                         songListUpdated.nowPlayingListUpdated(true);
                         adapter.notifyDataSetChanged();
                         recyclerView.invalidate();
@@ -76,12 +75,27 @@ public class SongsListFragment extends Fragment {
                 }
             }
         });
-        LinearLayoutManager layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
+        layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         fastScroller.setRecyclerView(recyclerView);
+
+        ((MainActivity)context).ivThisSong.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((MainActivity)context).appbar.setExpanded(false,true);
+                scroll();
+            }
+        });
+
     }
     public interface SongListUpdated{
         void nowPlayingListUpdated(boolean listUpdated);
     }
+
+    public void scroll(){
+        Toast.makeText(context, "worked", Toast.LENGTH_SHORT).show();
+        recyclerView.smoothScrollToPosition(music.getIndexOfCurrentSong());
+    }
+
 }

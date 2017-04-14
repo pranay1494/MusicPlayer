@@ -52,14 +52,14 @@ import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated {
+public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener {
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private AppBarLayout appbar;
+    public AppBarLayout appbar;
     private AnimationSet mShowSet;
     private AnimationSet mHideSet;
     private LinearLayout llAppBarNowPlaying;
@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     private TextView tvAppName;
     private TextView tvSongPlayingAppbar;
     private TextView tvNextSongAppbar;
-    private ImageView ivThisSong;
+    public ImageView ivThisSong;
     private ImageView ivNextSong;
 
 
@@ -98,6 +98,12 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     public void nowPlayingListUpdated(boolean listUpdated) {
         if (listUpdated){
             play();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.ivThisSong){
         }
     }
 
@@ -135,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
 
         tvSongPlayingAppbar.setSelected(true);
         tvNextSongAppbar.setSelected(true);
+        ivThisSong.setOnClickListener(this);
 
         setupTabs();
         showAnim();
