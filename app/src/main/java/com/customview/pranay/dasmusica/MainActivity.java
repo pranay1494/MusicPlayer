@@ -1,12 +1,11 @@
 package com.customview.pranay.dasmusica;
 
-import android.app.FragmentTransaction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -15,15 +14,12 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -33,19 +29,28 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.customview.pranay.dasmusica.fragment.DashBoardFragment;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.customview.pranay.dasmusica.fragment.AlbumsListFragment;
 import com.customview.pranay.dasmusica.fragment.SongsListFragment;
+import com.customview.pranay.dasmusica.interfaces.GlideInterface;
 import com.customview.pranay.dasmusica.interfaces.SongSelected;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.SongsPojo;
 import com.customview.pranay.dasmusica.pagetransformers.ZoomOutPageTransformer;
 import com.customview.pranay.dasmusica.service.MusicService;
-import com.github.florent37.hollyviewpager.HollyViewPager;
+import com.customview.pranay.dasmusica.utils.GildeUtils;
+import com.customview.pranay.dasmusica.utils.Utilities;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated {
 
@@ -62,6 +67,12 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     public MusicService musicService;
     private boolean mServiceBound;
     private Intent playerIntent;
+    private TextView tvAppName;
+    private TextView tvSongPlayingAppbar;
+    private TextView tvNextSongAppbar;
+    private ImageView ivThisSong;
+    private ImageView ivNextSong;
+
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
@@ -113,9 +124,17 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
         appbar = (AppBarLayout) findViewById(R.id.appbar);
         llAppBarNowPlaying = (LinearLayout) findViewById(R.id.llAppBarNowPlaying);
         rlNextSongForAppBar = (RelativeLayout) findViewById(R.id.rlNextSongForAppBar);
+        tvAppName = (TextView) findViewById(R.id.tvAppName);
+        tvNextSongAppbar = (TextView) findViewById(R.id.tvNextSongAppbar);
+        tvSongPlayingAppbar = (TextView) findViewById(R.id.tvSongPlayingAppbar);
+        ivThisSong = (ImageView) findViewById(R.id.ivThisSong);
+        ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
 
         slidingUpPanel = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
+
+        tvSongPlayingAppbar.setSelected(true);
+        tvNextSongAppbar.setSelected(true);
 
         setupTabs();
         showAnim();
@@ -131,15 +150,17 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
                 if (verticalOffset == 0) {
                     if (mLayoutState != CollapsingToolbarLayoutState.EXPANDED) {
                         mLayoutState = CollapsingToolbarLayoutState.EXPANDED;
-                        Toast.makeText(MainActivity.this, "expanded", Toast.LENGTH_SHORT).show();
+                        tvAppName.startAnimation(mShowSet);
+                        tvAppName.setVisibility(View.VISIBLE);
                         rlNextSongForAppBar.setVisibility(View.GONE);
                     }
                 } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange()) {
                     if (mLayoutState != CollapsingToolbarLayoutState.COLLAPSED) {
                         mLayoutState = CollapsingToolbarLayoutState.COLLAPSED;
-                        Toast.makeText(MainActivity.this, "collapsed", Toast.LENGTH_SHORT).show();
                         llAppBarNowPlaying.startAnimation(mHideSet);
                         llAppBarNowPlaying.setVisibility(View.GONE);
+                        tvAppName.startAnimation(mHideSet);
+                        tvAppName.setVisibility(View.GONE);
                         rlNextSongForAppBar.startAnimation(mShowSet);
                         rlNextSongForAppBar.setVisibility(View.VISIBLE);
 
@@ -147,11 +168,12 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
                 } else {
                     if (mLayoutState != CollapsingToolbarLayoutState.INTERNEDTATE) {
                         if (mLayoutState == CollapsingToolbarLayoutState.COLLAPSED) {
-                            Toast.makeText(MainActivity.this, "Intermediate", Toast.LENGTH_SHORT).show();
                             llAppBarNowPlaying.startAnimation(mShowSet);
                             llAppBarNowPlaying.setVisibility(View.VISIBLE);
                             rlNextSongForAppBar.startAnimation(mHideSet);
                             rlNextSongForAppBar.setVisibility(View.GONE);
+                            tvAppName.startAnimation(mHideSet);
+                            tvAppName.setVisibility(View.GONE);
                         }
                         mLayoutState = CollapsingToolbarLayoutState.INTERNEDTATE;
                     }
@@ -170,8 +192,8 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     private void setupTabs() {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.add(new SongsListFragment(),"Songs");
-        viewPagerAdapter.add(new SongsListFragment(),"Albums");
-        viewPagerAdapter.add(new SongsListFragment(),"Genere");
+        viewPagerAdapter.add(new AlbumsListFragment(),"Albums");
+        viewPagerAdapter.add(new SongsListFragment(),"Genre");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.setPageTransformer(false,new ZoomOutPageTransformer());
@@ -243,6 +265,62 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     }
 
     public void play(){
+        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
         musicService.playSong();
+    }
+
+    private void setBackgroundRelativeToCurrentSong(TextView thisSong, TextView nextSong, final ImageView ivNext, final View... view) {
+        MusicPOJO musicPOJO = MusicPOJO.getInstance();
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        SongsPojo song = musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong());
+        if (thisSong != null){
+            thisSong.setText(song.getTitle());
+        }
+        if (nextSong != null){
+            if (musicPOJO.getNowPlayingList()!= null && musicPOJO.getNowPlayingList().size() > musicPOJO.getIndexOfCurrentSong()+ 1){
+                nextSong.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()+1).getTitle());
+            }
+        }
+        byte [] data = null;
+        try {
+            mmr.setDataSource(song.getPath());
+            data = mmr.getEmbeddedPicture();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        tvSongPlayingAppbar.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getTitle());
+
+        Glide.with(MainActivity.this).load(data).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                BitmapDrawable drawable = (BitmapDrawable) Utilities.createBlurredImageFromBitmap(resource,MainActivity.this,12);
+                for (View i:view) {
+                    if (i instanceof ImageView){
+                        ((ImageView) i).setImageBitmap(resource);
+                    }
+                    else {
+                        i.setBackground(drawable);
+                    }
+                }
+            }
+        });
+
+        data = null;
+        try {
+            if (musicPOJO.getNowPlayingList()!=null) {
+                mmr.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong() + 1).getPath());
+                data = mmr.getEmbeddedPicture();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        GildeUtils.getBitmapFromGlide(MainActivity.this,data, new GlideInterface() {
+            @Override
+            public void getBitmap(Bitmap bitmap) {
+                ivNext.setImageBitmap(bitmap);
+            }
+        });
+
     }
 }

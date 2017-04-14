@@ -5,7 +5,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.support.v8.renderscript.RenderScript;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.customview.pranay.dasmusica.MainActivity;
+import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.SongsPojo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,5 +42,26 @@ public class Utilities {
         return new BitmapDrawable(context.getResources(), blurTemplate);
     }
 
+    public static BitmapDrawable changeAppbarBackground(final Context context){
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        MusicPOJO musicPOJO = MusicPOJO.getInstance();
+        final Bitmap[] bitmap = {null};
+        SongsPojo song = musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong());
+        byte [] data = null;
+        try {
+            mmr.setDataSource(song.getPath());
+            data = mmr.getEmbeddedPicture();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
+
+        Glide.with(context).load(data).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>() {
+            @Override
+            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                bitmap[0] =  resource;
+            }
+        });
+        return new BitmapDrawable(context.getResources(),bitmap[0]);
+    }
 }

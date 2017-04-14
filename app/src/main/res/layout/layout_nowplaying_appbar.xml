@@ -18,14 +18,18 @@
         android:orientation="horizontal">
 
         <TextView
+            android:id="@+id/tvNextSongAppbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginRight="@dimen/logout_h"
-            android:maxLength="10"
+            android:maxLength="20"
             android:text="Next Song"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/d21"
+            android:textSize="@dimen/d16"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
             android:textStyle="bold" />
 
         <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -53,14 +57,17 @@
             app:civ_border_width="2dp" />
 
         <TextView
+            android:id="@+id/tvSongPlayingAppbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginLeft="@dimen/logout_h"
-            android:maxLength="20"
             android:text="Current song"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:marqueeRepeatLimit="marquee_forever"
             android:textColor="@android:color/white"
-            android:textSize="@dimen/d21"
+            android:textSize="@dimen/d16"
             android:textStyle="bold" />
     </LinearLayout>
 </RelativeLayout>
