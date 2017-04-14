@@ -10,12 +10,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.customview.pranay.dasmusica.MainActivity;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.adapter.SongsListAdapter;
+import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.SongsPojo;
 import com.futuremind.recyclerviewfastscroll.FastScroller;
-import com.github.florent37.hollyviewpager.HollyViewPager;
-import com.github.florent37.hollyviewpager.HollyViewPagerBus;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by Pranay on 03-03-2017.
@@ -48,11 +50,29 @@ public class SongsListFragment extends Fragment {
 
         adapter = new SongsListAdapter(context, recyclerView,new SongsListAdapter.SongClicked() {
             @Override
-            public void songclicked(boolean clicked) {
+            public void songclicked(boolean clicked, boolean shuffleClicked) {
                 if (clicked) {
                     songListUpdated.nowPlayingListUpdated(true);
                     adapter.notifyDataSetChanged();
                     recyclerView.invalidate();
+                }else{
+                    if (shuffleClicked){
+                        ArrayList<SongsPojo> list = new ArrayList<>(MusicPOJO.getInstance().getSongsList());
+                        Collections.shuffle(list);
+                        MusicPOJO.getInstance().clearNowPlayingList();
+                        MusicPOJO.getInstance().setNowPlayingList(list);
+                        MusicPOJO.getInstance().setIndexOfCurrentSong(0);
+                        MusicPOJO.getInstance().getNowPlayingList().get(0).setPalying(true);
+                    //// TODO: 14/04/2017 compplete this
+                        /*    for (SongsPojo song : MusicPOJO.getInstance().getSongsList()) {
+                            if (song.getId().equals(MusicPOJO.getInstance().getNowPlayingList().get(MusicPOJO.getInstance().getIndexOfCurrentSong()))){
+
+                            }
+                        }*/
+                        songListUpdated.nowPlayingListUpdated(true);
+                        adapter.notifyDataSetChanged();
+                        recyclerView.invalidate();
+                    }
                 }
             }
         });

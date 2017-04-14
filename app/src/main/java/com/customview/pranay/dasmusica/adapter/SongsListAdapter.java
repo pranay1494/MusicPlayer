@@ -1,8 +1,6 @@
 package com.customview.pranay.dasmusica.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -11,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -45,7 +44,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER){
-           return  new RecyclerView.ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.hvp_header_placeholder,parent,false)) {};
+           return  new ShuffleVH(LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_shuffle,parent,false));
         }else
             return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.row_songlist,parent,false));
     }
@@ -67,7 +66,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     musicPOJO.setNowPlayingList(list);
                     if(position<=musicPOJO.getNowPlayingList().size()) {
                         musicPOJO.getNowPlayingList().get(position).setPalying(true);
-                        songClickedCallback.songclicked(true);
+                        songClickedCallback.songclicked(true, false);
                     }
                 }
             });
@@ -82,19 +81,31 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             }
         }
+        else {
+            ShuffleVH viewHolder = (ShuffleVH) holder;
+            viewHolder.llShuffle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    songClickedCallback.songclicked(false,true);
+                }
+            });
+
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
         switch (position){
-//            case 0: return TYPE_HEADER;
+            case 0: return TYPE_HEADER;
             default: return TYPE_CELL;
         }
     }
 
     @Override
     public int getItemCount() {
-        return MusicPOJO.getInstance().getSongsList().size();
+        if (MusicPOJO.getInstance().getSongsList() != null)
+            return MusicPOJO.getInstance().getSongsList().size()+1;
+        return 0;
     }
 
     @Override
@@ -121,6 +132,15 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             rlSongs = (RelativeLayout) itemView.findViewById(R.id.rlsongs);
         }
     }
+
+    public class ShuffleVH extends RecyclerView.ViewHolder{
+        LinearLayout llShuffle;
+        public ShuffleVH(View itemView) {
+            super(itemView);
+            llShuffle = (LinearLayout) itemView.findViewById(R.id.llShuffle);
+        }
+    }
+
     private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
         byte [] data = null;
         try {
@@ -139,6 +159,6 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     public interface SongClicked{
-        void songclicked(boolean clicked);
+        void songclicked(boolean clicked, boolean shuffleClicked);
     }
 }
