@@ -114,4 +114,7 @@
     <dimen name="text_size_home_conf_title">18sp</dimen>
     <dimen name="font_date">21sp</dimen>
 
+    <dimen name="appbar_height">440dp</dimen>
+
+
 </resources>

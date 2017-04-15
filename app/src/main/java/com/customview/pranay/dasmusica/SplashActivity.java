@@ -14,15 +14,18 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.customview.pranay.dasmusica.comparator.MusicListComparator;
 import com.customview.pranay.dasmusica.model.AlbumPojo;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.model.SongsPojo;
+import com.customview.pranay.dasmusica.utils.DensityUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,23 +60,64 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
         typeface = Typeface.createFromAsset(getAssets(),FONT_PATH);
         splashText.setTypeface(typeface);
 
+        String densityDpi = DensityUtils.getDensityBucket(this.getResources());
+
+        Toast.makeText(this, ""+densityDpi, Toast.LENGTH_SHORT).show();
+
         animation = AnimationUtils.loadAnimation(this,R.anim.splashtext);
         splashText.startAnimation(animation);
 
-        animationDrawable = (AnimationDrawable) mainLayout.getBackground();
+        /*animationDrawable = (AnimationDrawable) mainLayout.getBackground();
         animationDrawable.setEnterFadeDuration(5000);
-        animationDrawable.setExitFadeDuration(2000);
+        animationDrawable.setExitFadeDuration(2000);*/
 
         context = this;
+
+        getDensity();
 
         setMusicList();
         setAlbumSongsList();
     }
 
+    private void getDensity() {
+        float density = getResources().getDisplayMetrics().density;
+
+        if (density == 0.75f)
+        {
+            Toast.makeText(context, "LDPI", Toast.LENGTH_SHORT).show();
+            // LDPI
+        }
+        else if (density >= 1.0f && density < 1.5f)
+        {
+            Toast.makeText(context, "mDPI", Toast.LENGTH_SHORT).show();
+            // MDPI
+        }
+        else if (density == 1.5f)
+        {
+            Toast.makeText(context, "hDPI", Toast.LENGTH_SHORT).show();
+            // HDPI
+        }
+        else if (density > 1.5f && density <= 2.0f)
+        {
+            Toast.makeText(context, "xDPI", Toast.LENGTH_SHORT).show();
+            // XHDPI
+        }
+        else if (density > 2.0f && density <= 3.0f)
+        {
+            Toast.makeText(context, "xxDPI", Toast.LENGTH_SHORT).show();
+            // XXHDPI
+        }
+        else
+        {
+            Toast.makeText(context, "xxxDPI", Toast.LENGTH_SHORT).show();
+            // XXXHDPI
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
-        animationDrawable.start();
+       // animationDrawable.start();
     }
 
     public void setMusicList(){
@@ -82,6 +126,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
 
     public void setAlbumSongsList(){
 //        getLoaderManager().initLoader(2,null,this);
+       try{
         contentResolver = context.getContentResolver();
         List<SongsPojo> songs = new ArrayList<>();
         Cursor cursor= contentResolver.query(albumsUri,null,null,null,null);
@@ -105,8 +150,15 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                 albumPojo.setAlbumArtUri(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART)));
                 albumPojo.setNumberOfSongs(Integer.parseInt(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.NUMBER_OF_SONGS))));
                 MusicPOJO.getInstance().addAlbum(albumPojo);
+                cursorForMusic.close();
             }
         }
+        cursor.close();
+       }
+       catch (Exception e) {
+           e.printStackTrace();
+       }
+
     }
 
     private void setSongList(Cursor cursor, SongsPojo songsPojo) {

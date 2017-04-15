@@ -72,9 +72,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void playSong(){
-        player.reset();
         MusicPOJO musicPOJO = MusicPOJO.getInstance();
         try {
+            player.reset();
             player.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getPath());
             player.prepareAsync();
         } catch (Exception e) {

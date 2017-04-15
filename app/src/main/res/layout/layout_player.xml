@@ -6,7 +6,7 @@
     <LinearLayout
         android:id="@+id/slideHeader"
         android:layout_width="match_parent"
-        android:layout_height="68dp"
+        android:layout_height="@dimen/grid_image_height"
         android:orientation="horizontal"
         android:weightSum="10"
         android:layout_alignParentTop="true">
@@ -52,7 +52,7 @@
         android:id="@+id/vpPlayer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/guitar"
+        android:background="@drawable/nowplaying"
         android:layout_below="@+id/slideHeader"
         android:layout_above="@+id/rlplayerControls">
 
@@ -62,7 +62,7 @@
         android:orientation="horizontal"
         android:id="@+id/rlplayerControls"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="@dimen/grid_image_height"
         android:weightSum="10"
         android:layout_alignParentBottom="true">
         <include layout="@layout/layout_player_controls"/>
