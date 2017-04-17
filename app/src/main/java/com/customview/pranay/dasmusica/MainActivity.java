@@ -7,8 +7,11 @@ import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -17,6 +20,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
@@ -29,6 +33,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,9 +55,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
-public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener ,SeekBar.OnSeekBarChangeListener{
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
@@ -70,8 +73,37 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     private TextView tvAppName;
     private TextView tvSongPlayingAppbar;
     private TextView tvNextSongAppbar;
+    private TextView tvMusicName;
     public ImageView ivThisSong;
     private ImageView ivNextSong;
+    private SeekBar seekBar;
+    private SeekBarController seekBarController;
+    private MusicPOJO musicObject = MusicPOJO.getInstance();
+
+
+    /**
+     * Made to update seekBar progress with media.
+     */
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.arg2 == MusicService.SONG_CHANGED){
+                if (tvMusicName != null){
+                    if (musicObject.getNowPlayingList()!=null && musicObject.getNowPlayingList().size()>0) {
+                        String name = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle();
+                        tvMusicName.setText(name);
+                        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
+                    }
+                }
+            }
+            if (msg != null) {
+                Bundle bundle = msg.getData();
+                if (bundle != null && seekBar != null) {
+                    seekBar.setProgress(bundle.getInt("PROGRESS"));
+                }
+            }
+        }
+    };
 
 
     private ServiceConnection serviceConnection = new ServiceConnection() {
@@ -80,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
             mServiceBound = true;
             MusicService.MyBinder binder = (MusicService.MyBinder) service;
             musicService = binder.getService();
+            musicService.setHandler(handler);
         }
 
         @Override
@@ -93,7 +126,6 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
         //get data from now playing list
 
     }
-
     @Override
     public void nowPlayingListUpdated(boolean listUpdated) {
         if (listUpdated){
@@ -105,6 +137,21 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     public void onClick(View v) {
         if (v.getId() == R.id.ivThisSong){
         }
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        musicService.seekToTime(seekBar.getProgress());
     }
 
     public enum CollapsingToolbarLayoutState {
@@ -131,10 +178,14 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
         llAppBarNowPlaying = (LinearLayout) findViewById(R.id.llAppBarNowPlaying);
         rlNextSongForAppBar = (RelativeLayout) findViewById(R.id.rlNextSongForAppBar);
         tvAppName = (TextView) findViewById(R.id.tvAppName);
+        tvMusicName = (TextView) findViewById(R.id.tvMusicName);
         tvNextSongAppbar = (TextView) findViewById(R.id.tvNextSongAppbar);
         tvSongPlayingAppbar = (TextView) findViewById(R.id.tvSongPlayingAppbar);
         ivThisSong = (ImageView) findViewById(R.id.ivThisSong);
         ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBarController = new SeekBarController();
+        seekBar.setMax(100);
 
         slidingUpPanel = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
@@ -142,6 +193,7 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
         tvSongPlayingAppbar.setSelected(true);
         tvNextSongAppbar.setSelected(true);
         ivThisSong.setOnClickListener(this);
+        seekBar.setOnSeekBarChangeListener(this);
 
         setupTabs();
         showAnim();
@@ -264,7 +316,7 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     @Override
     protected void onStart() {
         super.onStart();
-        if (playerIntent == null){
+        if (playerIntent == null && !mServiceBound){
             playerIntent = new Intent(MainActivity.this,MusicService.class);
             bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             startService(playerIntent);
@@ -272,8 +324,10 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     }
 
     public void play(){
-        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
-        musicService.playSong();
+        if (mServiceBound) {
+            //setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
+            musicService.playSong();
+        }
     }
 
     private void setBackgroundRelativeToCurrentSong(TextView thisSong, TextView nextSong, final ImageView ivNext, final View... view) {

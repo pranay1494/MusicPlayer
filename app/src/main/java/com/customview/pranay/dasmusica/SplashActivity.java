@@ -76,7 +76,12 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
         getDensity();
 
         setMusicList();
-        setAlbumSongsList();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                setAlbumSongsList();
+            }
+        }).start();
     }
 
     private void getDensity() {

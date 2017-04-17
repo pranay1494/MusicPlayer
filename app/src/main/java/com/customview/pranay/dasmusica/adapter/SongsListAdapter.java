@@ -74,7 +74,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 SongsPojo songsPojo = MusicPOJO.getInstance().getSongsList().get(position-1);
                 SongsPojo current = MusicPOJO.getInstance().getNowPlayingList().get(MusicPOJO.getInstance().getIndexOfCurrentSong());
                 if (songsPojo.getId().equals(current.getId())){
-                    viewHolder.rlSongs.setBackground(context.getResources().getDrawable(R.drawable.currentlyplaying_row));
+                    viewHolder.rlSongs.setBackground(context.getResources().getDrawable(R.drawable.bgnowplaying));
                     recyclerView.invalidate();
                 }else{
                     viewHolder.rlSongs.setBackground(null);

@@ -96,6 +96,8 @@
 
     <!--For grid view on home conf screen-->
     <dimen name="grid_image_height">72dp</dimen>
+    <dimen name="player_control_height">94dp</dimen>
+    <dimen name="player_control">100dp</dimen>
     <dimen name="grid_image_width">72dp</dimen>
 
     <!--font size change required for not yet rated-->
