@@ -44,9 +44,11 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.customview.pranay.dasmusica.fragment.AlbumsListFragment;
 import com.customview.pranay.dasmusica.fragment.SongsListFragment;
 import com.customview.pranay.dasmusica.interfaces.GlideInterface;
+import com.customview.pranay.dasmusica.interfaces.PageChangeForViewPager;
 import com.customview.pranay.dasmusica.interfaces.SongSelected;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.model.SongsPojo;
+import com.customview.pranay.dasmusica.pageradapter.PlayerViewPager;
 import com.customview.pranay.dasmusica.pagetransformers.ZoomOutPageTransformer;
 import com.customview.pranay.dasmusica.service.MusicService;
 import com.customview.pranay.dasmusica.utils.GildeUtils;
@@ -56,7 +58,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SlidingUpPanelLayout.PanelSlideListener,SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener ,SeekBar.OnSeekBarChangeListener{
+public class MainActivity extends AppCompatActivity implements PageChangeForViewPager,SlidingUpPanelLayout.PanelSlideListener,SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener ,SeekBar.OnSeekBarChangeListener{
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
@@ -84,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
     private SeekBarController seekBarController;
     private MusicPOJO musicObject = MusicPOJO.getInstance();
     private ViewPagerAdapter viewPagerAdapter;
+    private ViewPager vpSongPlaying;
+    private PlayerViewPager playerViewPager;
 
     static{
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -113,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
                         }
                     }
                 }
+                vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
             }
             if (msg != null) {
                 Bundle bundle = msg.getData();
@@ -142,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
             mServiceBound = false;
         }
     };
+    private PageChangeListener pageChangeListener;
 
     @Override
     public void songToPlay(int position) {
@@ -215,6 +221,16 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
         }
     }
 
+    @Override
+    public void selectedPage(int position) {
+        if (position == musicObject.getIndexOfCurrentSong()){
+            //do nothing
+        }
+        else{
+            musicService.playNext(true);
+        }
+    }
+
     public enum CollapsingToolbarLayoutState {
         EXPANDED,
         COLLAPSED,
@@ -235,6 +251,7 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
         ivFavorite = (ImageView) findViewById(R.id.ivFavorite);
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
+        vpSongPlaying = (ViewPager) findViewById(R.id.vpPlayer);
         appbar = (AppBarLayout) findViewById(R.id.appbar);
         llAppBarNowPlaying = (LinearLayout) findViewById(R.id.llAppBarNowPlaying);
         rlNextSongForAppBar = (RelativeLayout) findViewById(R.id.rlNextSongForAppBar);
@@ -263,12 +280,15 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
         ivNext.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
+        playerViewPager = new PlayerViewPager(MainActivity.this,getSupportFragmentManager());
         setupTabs();
         showAnim();
         hideAnim();
         setControlBtnsWhilecreating();
         offsetchangeListening();
         tabLayout.setupWithViewPager(viewPager);
+        pageChangeListener = new PageChangeListener(MainActivity.this,this);
+        vpSongPlaying.addOnPageChangeListener(pageChangeListener);
     }
 
     private void setControlBtnsWhilecreating() {
@@ -349,6 +369,7 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.setPageTransformer(false,new ZoomOutPageTransformer());
+        vpSongPlaying.setAdapter(playerViewPager);
     }
     private void showAnim() {
         mShowSet = new AnimationSet(true);
@@ -433,6 +454,8 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
     public void play(){
         if (mServiceBound) {
             //setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
+            playerViewPager.notifyDataSetChanged();
+            vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
             musicService.playSong();
         }
     }
