@@ -55,7 +55,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener ,SeekBar.OnSeekBarChangeListener{
+public class MainActivity extends AppCompatActivity implements SlidingUpPanelLayout.PanelSlideListener,SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener ,SeekBar.OnSeekBarChangeListener{
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
@@ -76,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     private TextView tvMusicName;
     public ImageView ivThisSong;
     private ImageView ivNextSong;
+    private ImageView ivNext;
+    private ImageView ivPrevious;
+    private ImageView ivplayPause;
     private SeekBar seekBar;
     private SeekBarController seekBarController;
     private MusicPOJO musicObject = MusicPOJO.getInstance();
@@ -137,6 +140,25 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     public void onClick(View v) {
         if (v.getId() == R.id.ivThisSong){
         }
+        else if (v.getId() == R.id.ivplayPause){
+            setControlBtns(true);
+        }
+        else if (v.getId() == R.id.ivNext){
+            Log.d("current_index","clicked Next");
+            /*MusicPOJO music = MusicPOJO.getInstance();
+            if (music.getNowPlayingList()!=null && ((music.getNowPlayingList().size()-1) > music.getIndexOfCurrentSong())){
+                music.setIndexOfCurrentSong(music.getIndexOfCurrentSong() + 1);
+            }else{
+                music.setIndexOfCurrentSong(0);
+            }
+            if (music!=null && music.getNowPlayingList()!=null &&music.getNowPlayingList().size()>0) {
+                music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
+            }*/
+            musicService.playNext(true);
+        }
+        else if (v.getId() == R.id.ivPrevious){
+            musicService.playPrevious(true);
+        }
     }
 
     @Override
@@ -152,6 +174,26 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         musicService.seekToTime(seekBar.getProgress());
+    }
+
+    /**
+     *
+     * @param panel
+     * @param slideOffset
+     */
+    @Override
+    public void onPanelSlide(View panel, float slideOffset) {
+
+    }
+
+    @Override
+    public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+        if (newState == SlidingUpPanelLayout.PanelState.EXPANDED){
+            Toast.makeText(this, "expanded slider", Toast.LENGTH_SHORT).show();
+        }
+        else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED){
+            Toast.makeText(this, "collapsed slider", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public enum CollapsingToolbarLayoutState {
@@ -183,23 +225,55 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
         tvSongPlayingAppbar = (TextView) findViewById(R.id.tvSongPlayingAppbar);
         ivThisSong = (ImageView) findViewById(R.id.ivThisSong);
         ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
+        ivplayPause = (ImageView) findViewById(R.id.ivplayPause);
+        ivPrevious = (ImageView) findViewById(R.id.ivPrevious);
+        ivNext = (ImageView) findViewById(R.id.ivNext);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBarController = new SeekBarController();
         seekBar.setMax(100);
 
         slidingUpPanel = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
+        slidingUpPanel.addPanelSlideListener(this);
 
         tvSongPlayingAppbar.setSelected(true);
         tvNextSongAppbar.setSelected(true);
         ivThisSong.setOnClickListener(this);
+        ivPrevious.setOnClickListener(this);
+        ivplayPause.setOnClickListener(this);
+        ivNext.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
         setupTabs();
         showAnim();
         hideAnim();
+        setControlBtnsWhilecreating();
         offsetchangeListening();
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void setControlBtnsWhilecreating() {
+        if(mServiceBound && musicService.isPlaying()){
+            ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
+        }
+        else{
+            ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_24dp));
+        }
+    }
+
+    private void setControlBtns(boolean changeMediaPlayback) {
+        if (mServiceBound && musicService.isPlaying()){
+            //pause the music
+            ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_24dp));
+            if (mServiceBound && changeMediaPlayback) {
+                musicService.pause();
+            }
+        }else{
+            ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
+            if (mServiceBound && changeMediaPlayback) {
+                musicService.resume();
+            }
+        }
     }
 
     private void offsetchangeListening() {
@@ -316,10 +390,18 @@ public class MainActivity extends AppCompatActivity implements SongSelected,Song
     @Override
     protected void onStart() {
         super.onStart();
-        if (playerIntent == null && !mServiceBound){
+        if (playerIntent == null && !mServiceBound && serviceConnection!=null){
             playerIntent = new Intent(MainActivity.this,MusicService.class);
             bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             startService(playerIntent);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mServiceBound && serviceConnection!=null){
+            unbindService(serviceConnection);
         }
     }
 

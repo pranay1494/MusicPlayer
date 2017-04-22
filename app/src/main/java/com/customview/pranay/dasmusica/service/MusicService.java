@@ -11,7 +11,9 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.utils.SeekbarTime;
@@ -33,7 +35,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private boolean isRepeat;
     private MusicPOJO music;
     private Handler mhandler;
-    private boolean updateSeekBar;
+    private boolean nextClicked;
+    private boolean previousClicked;
 
     public MusicService() {}
 
@@ -57,14 +60,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         }else if (isShuffle){
 
-        }else{
-            if (music.getNowPlayingList()!=null && ((music.getNowPlayingList().size()-1) > music.getIndexOfCurrentSong())){
-                music.setIndexOfCurrentSong(music.getIndexOfCurrentSong() + 1);
-                sendNewSongInfoToActivity();
-            }else{
-                music.setIndexOfCurrentSong(0);
+        }else if (previousClicked){
+            previousClicked = false;
+        } else{
+            if (!nextClicked){
+                playNext(false);
             }
-            playSong();
+            else {
+                nextClicked = false;
+            }
         }
     }
 
@@ -90,6 +94,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    public void pause() {
+        player.pause();
+    }
+
     public class MyBinder extends Binder{
         public MusicService getService(){
             return MusicService.this;
@@ -109,15 +117,26 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return false;
     }
 
+    public void resume(){
+        try {
+            if (player != null) {
+                player.prepareAsync();
+                player.start();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public void playSong(){
         MusicPOJO musicPOJO = MusicPOJO.getInstance();
         try {
             player.reset();
             player.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getPath());
             player.prepareAsync();
-//            mhandler.sendMessageDelayed(msg,1000);
 
         } catch (Exception e) {
+            Toast.makeText(this, "Sorry This Song Cannot Be Played !!", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
     }
@@ -128,7 +147,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             public void run() {
                 while (player.isPlaying()){
                     try {
-                       // Thread.sleep(1000);
+                        Thread.sleep(1000);
                         Message msg = Message.obtain();
                         Bundle bundle = getSeekBarData();
                         msg.setData(bundle);
@@ -163,5 +182,48 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public boolean isPlaying(){
         return player.isPlaying();
+    }
+
+    public void playNext(boolean clicked) {
+        nextClicked = clicked;
+        if (music.getNowPlayingList()!=null && ((music.getNowPlayingList().size()-1) > music.getIndexOfCurrentSong())){
+            music.setIndexOfCurrentSong(music.getIndexOfCurrentSong() + 1);
+        }else{
+            music.setIndexOfCurrentSong(0);
+        }
+        if (music!=null && music.getNowPlayingList()!=null &&music.getNowPlayingList().size()>0) {
+            music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
+        }
+        Log.d("current_index",music.getIndexOfCurrentSong()+"");
+        sendNewSongInfoToActivity();
+        playSong();
+        updateProgressBar();
+    }
+
+    public void playPrevious(boolean clicked){
+        previousClicked = clicked;
+        if (player.getCurrentPosition() <= 5000){
+            //play previous song if exists.
+            if (music.getNowPlayingList()!=null && music.getNowPlayingList().size() > 0 && music.getIndexOfCurrentSong()>0 ){
+                music.setIndexOfCurrentSong(music.getIndexOfCurrentSong()-1);
+            }
+            else{
+                player.seekTo(0);
+            }
+
+        }else{
+            //play current song from start
+            player.seekTo(0);
+        }
+        if (music!=null && music.getNowPlayingList()!=null &&music.getNowPlayingList().size()>0) {
+            music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
+        }
+        sendNewSongInfoToActivity();
+        playSong();
+        updateProgressBar();
+    }
+    public void nextSong(){
+        player.stop();
+        player.reset();
     }
 }

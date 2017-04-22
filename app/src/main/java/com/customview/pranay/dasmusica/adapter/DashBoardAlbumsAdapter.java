@@ -1,11 +1,8 @@
 package com.customview.pranay.dasmusica.adapter;
 
-import android.content.ContentUris;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,12 +13,9 @@ import android.widget.TextView;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.model.AlbumPojo;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
-import com.customview.pranay.dasmusica.model.SongsPojo;
 
-import java.io.File;
 import java.util.ArrayList;
 
-import wseemann.media.FFmpegMediaMetadataRetriever;
 
 /**
  * Created by Pranay on 06-03-2017.

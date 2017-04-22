@@ -17,7 +17,6 @@ import com.customview.pranay.dasmusica.model.SongsPojo;
 
 import java.util.ArrayList;
 
-import wseemann.media.FFmpegMediaMetadataRetriever;
 
 /**
  * Created by Pranay on 02-03-2017.
@@ -69,6 +68,7 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.Dash
         }
     }
 
+/*
     private void getAlbumArt(String s, ImageView albumArt) {
         if (s!=null&&!s.equalsIgnoreCase("")) {
             FFmpegMediaMetadataRetriever retriever = new FFmpegMediaMetadataRetriever();
@@ -81,6 +81,7 @@ public class DashboardAdapter extends RecyclerView.Adapter<DashboardAdapter.Dash
             retriever.release();
         }
     }
+*/
     private void getAlbumArtWithoutLibrary(String s, ImageView albumArt) {
         android.media.MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         mmr.setDataSource(s);

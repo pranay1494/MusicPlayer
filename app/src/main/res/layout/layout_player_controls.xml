@@ -4,12 +4,13 @@
     android:layout_height="@dimen/player_control"
     android:layout_alignParentBottom="true"
     android:orientation="vertical">
-        <SeekBar
+
+    <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:thumb="@drawable/seekbarthumb_24dp"
-        android:thumbOffset="8dp"
-        android:layout_height="wrap_content" />
+        android:thumbOffset="8dp" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -21,6 +22,7 @@
         android:weightSum="10">
 
         <ImageView
+            android:id="@+id/ivRepeat"
             android:layout_width="0dp"
             android:layout_height="@dimen/d31"
             android:layout_gravity="center_vertical"
@@ -28,6 +30,7 @@
             app:srcCompat="@drawable/ic_repeat_black_24dp" />
 
         <ImageView
+            android:id="@+id/ivPrevious"
             android:layout_width="0dp"
             android:layout_height="@dimen/d31"
             android:layout_gravity="center_vertical"
@@ -35,6 +38,7 @@
             app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
         <ImageView
+            android:id="@+id/ivplayPause"
             android:layout_width="0dp"
             android:layout_height="@dimen/app_setting_row_h"
             android:layout_gravity="center_vertical"
@@ -42,6 +46,7 @@
             app:srcCompat="@drawable/ic_play_circle_filled_black_24dp" />
 
         <ImageView
+            android:id="@+id/ivNext"
             android:layout_width="0dp"
             android:layout_height="@dimen/d31"
             android:layout_gravity="center_vertical"
@@ -49,6 +54,7 @@
             app:srcCompat="@drawable/ic_skip_next_black_24dp" />
 
         <ImageView
+            android:id="@+id/ivShuffle"
             android:layout_width="0dp"
             android:layout_height="@dimen/d31"
             android:layout_gravity="center_vertical"
