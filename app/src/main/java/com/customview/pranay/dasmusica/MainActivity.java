@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -83,13 +84,19 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
     private SeekBarController seekBarController;
     private MusicPOJO musicObject = MusicPOJO.getInstance();
 
-
+    static{
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+    }
     /**
      * Made to update seekBar progress with media.
      */
     private Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
+            if (musicService.isPlaying()){
+                seekBar.setEnabled(true);
+                seekBar.setThumb(getResources().getDrawable(R.drawable.seekbarthumb_24dp));
+            }
             if (msg.arg2 == MusicService.SONG_CHANGED){
                 if (tvMusicName != null){
                     if (musicObject.getNowPlayingList()!=null && musicObject.getNowPlayingList().size()>0) {
@@ -116,6 +123,10 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
             MusicService.MyBinder binder = (MusicService.MyBinder) service;
             musicService = binder.getService();
             musicService.setHandler(handler);
+            if (mServiceBound && !musicService.isPlaying()){
+                seekBar.setEnabled(false);
+                seekBar.setThumb(null);
+            }
         }
 
         @Override

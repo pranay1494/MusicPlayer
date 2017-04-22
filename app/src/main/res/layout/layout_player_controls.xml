@@ -9,8 +9,10 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:splitTrack="false"
         android:thumb="@drawable/seekbarthumb_24dp"
-        android:thumbOffset="8dp" />
+        android:progressTint="#760bac"
+        android:thumbOffset="0dp" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
