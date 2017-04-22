@@ -98,4 +98,9 @@ public class SongsListFragment extends Fragment {
         recyclerView.smoothScrollToPosition(music.getIndexOfCurrentSong());
     }
 
+    public void refreshList(){
+        if (adapter!=null)
+            adapter.notifyDataSetChanged();
+    }
+
 }

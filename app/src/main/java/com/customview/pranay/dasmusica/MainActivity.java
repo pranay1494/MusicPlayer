@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
     private SeekBar seekBar;
     private SeekBarController seekBarController;
     private MusicPOJO musicObject = MusicPOJO.getInstance();
+    private ViewPagerAdapter viewPagerAdapter;
 
     static{
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -103,6 +104,13 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
                         String name = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle();
                         tvMusicName.setText(name);
                         setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
+                        if (viewPagerAdapter!=null){
+                            /**
+                             * to refresh the list if song is changed to indicate currently playing song.
+                             */
+                            Fragment fragment = viewPagerAdapter.getFragment(0);
+                            ((SongsListFragment)fragment).refreshList();
+                        }
                     }
                 }
             }
@@ -334,7 +342,7 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
     }
 
     private void setupTabs() {
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.add(new SongsListFragment(),"Songs");
         viewPagerAdapter.add(new AlbumsListFragment(),"Albums");
         viewPagerAdapter.add(new SongsListFragment(),"Genre");
@@ -391,7 +399,13 @@ public class MainActivity extends AppCompatActivity implements SlidingUpPanelLay
             fragmentList.add(fragment);
             fragmentTitleList.add(title);
         }
+        public Fragment getFragment(int position){
+            if (fragmentList!=null && fragmentList.size()>position)
+                return fragmentList.get(position);
 
+            return null;
+
+        }
         @Override
         public CharSequence getPageTitle(int position) {
             return fragmentTitleList.get(position);
