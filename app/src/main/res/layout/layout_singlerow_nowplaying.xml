@@ -7,12 +7,15 @@
     android:layout_marginRight="@dimen/d20"
     android:layout_marginLeft="@dimen/d20">
     <TextView
+        android:id="@+id/tvNextSongToolBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bgnowplaying"
         android:padding="10dp"
+        android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:textColor="#fff"
+        android:singleLine="true"
         android:drawablePadding="10dp"
         android:drawableLeft="@drawable/ic_skip_next_white_24dp"
         android:text="Next Song"/>

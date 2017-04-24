@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -17,6 +18,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -52,13 +54,14 @@ import com.customview.pranay.dasmusica.pageradapter.PlayerViewPager;
 import com.customview.pranay.dasmusica.pagetransformers.ZoomOutPageTransformer;
 import com.customview.pranay.dasmusica.service.MusicService;
 import com.customview.pranay.dasmusica.utils.GildeUtils;
+import com.customview.pranay.dasmusica.utils.SeekbarTime;
 import com.customview.pranay.dasmusica.utils.Utilities;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements PageChangeForViewPager,SlidingUpPanelLayout.PanelSlideListener,SongSelected,SongsListFragment.SongListUpdated,View.OnClickListener ,SeekBar.OnSeekBarChangeListener{
+public class MainActivity extends AppCompatActivity implements PageChangeForViewPager, SlidingUpPanelLayout.PanelSlideListener, SongSelected, SongsListFragment.SongListUpdated, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
@@ -76,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     private TextView tvAppName;
     private TextView tvSongPlayingAppbar;
     private TextView tvNextSongAppbar;
+    private TextView tvNextSongToolBar;
     private TextView tvMusicName;
     public ImageView ivThisSong;
     private ImageView ivNextSong;
@@ -89,42 +93,60 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     private ViewPager vpSongPlaying;
     private PlayerViewPager playerViewPager;
 
-    static{
+    static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
+
     /**
      * Made to update seekBar progress with media.
      */
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (musicService.isPlaying()){
+            if (musicService.isPlaying()) {
                 seekBar.setEnabled(true);
-                seekBar.setThumb(getResources().getDrawable(R.drawable.seekbarthumb_24dp));
+                seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
             }
-            if (msg.arg2 == MusicService.SONG_CHANGED){
-                if (tvMusicName != null){
-                    if (musicObject.getNowPlayingList()!=null && musicObject.getNowPlayingList().size()>0) {
+            if (msg.arg2 == MusicService.SONG_CHANGED) {
+                if (tvMusicName != null) {
+                    if (musicObject.getNowPlayingList() != null && musicObject.getNowPlayingList().size() > 0) {
                         String name = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle();
                         tvMusicName.setText(name);
-                        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
-                        if (viewPagerAdapter!=null){
+                        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong);
+                        if (viewPagerAdapter != null) {
                             /**
                              * to refresh the list if song is changed to indicate currently playing song.
                              */
                             Fragment fragment = viewPagerAdapter.getFragment(0);
-                            ((SongsListFragment)fragment).refreshList();
+                            ((SongsListFragment) fragment).refreshList();
                         }
                     }
                 }
                 vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
             }
-            if (msg != null) {
+            /*if (msg != null) {
                 Bundle bundle = msg.getData();
                 if (bundle != null && seekBar != null) {
-                    seekBar.setProgress(bundle.getInt("PROGRESS"));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        seekBar.setProgress(bundle.getInt("PROGRESS"),true);
+                    }
                 }
+            }*/
+        }
+    };
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            long totalDuration = musicService.getDuration();
+            long currentDuration = musicService.getCurrentPosition();
+            // Updating progress bar
+            int progress = (int)(SeekbarTime.getProgressPercentage(currentDuration, totalDuration));
+            //Log.d("Progress", ""+progress);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                seekBar.setProgress(progress,true);
             }
+
+            // Running this thread after 100 milliseconds
+            handler.postDelayed(this, 100);
         }
     };
 
@@ -136,12 +158,12 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             MusicService.MyBinder binder = (MusicService.MyBinder) service;
             musicService = binder.getService();
             musicService.setHandler(handler);
-            if (mServiceBound && !musicService.isPlaying()){
+            /*if (mServiceBound && !musicService.isPlaying()) {
                 seekBar.setEnabled(false);
                 seekBar.setThumb(null);
-            }
+            }*/
+            handler.postDelayed(mUpdateTimeTask, 100);
         }
-
         @Override
         public void onServiceDisconnected(ComponentName name) {
             mServiceBound = false;
@@ -154,34 +176,23 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         //get data from now playing list
 
     }
+
     @Override
     public void nowPlayingListUpdated(boolean listUpdated) {
-        if (listUpdated){
+        if (listUpdated) {
             play();
         }
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.ivThisSong){
-        }
-        else if (v.getId() == R.id.ivplayPause){
+        if (v.getId() == R.id.ivThisSong) {
+        } else if (v.getId() == R.id.ivplayPause) {
             setControlBtns(true);
-        }
-        else if (v.getId() == R.id.ivNext){
-            Log.d("current_index","clicked Next");
-            /*MusicPOJO music = MusicPOJO.getInstance();
-            if (music.getNowPlayingList()!=null && ((music.getNowPlayingList().size()-1) > music.getIndexOfCurrentSong())){
-                music.setIndexOfCurrentSong(music.getIndexOfCurrentSong() + 1);
-            }else{
-                music.setIndexOfCurrentSong(0);
-            }
-            if (music!=null && music.getNowPlayingList()!=null &&music.getNowPlayingList().size()>0) {
-                music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
-            }*/
+        } else if (v.getId() == R.id.ivNext) {
+            Log.d("index", "clicked Next");
             musicService.playNext(true);
-        }
-        else if (v.getId() == R.id.ivPrevious){
+        } else if (v.getId() == R.id.ivPrevious) {
             musicService.playPrevious(true);
         }
     }
@@ -202,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     }
 
     /**
-     *
      * @param panel
      * @param slideOffset
      */
@@ -213,21 +223,40 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
 
     @Override
     public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
-        if (newState == SlidingUpPanelLayout.PanelState.EXPANDED){
+        if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
             Toast.makeText(this, "expanded slider", Toast.LENGTH_SHORT).show();
-        }
-        else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED){
+        } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
             Toast.makeText(this, "collapsed slider", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
-    public void selectedPage(int position) {
-        if (position == musicObject.getIndexOfCurrentSong()){
+    public void selectedPage(final int position) {
+        /*new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                    if (position == musicObject.getIndexOfCurrentSong()) {
+                        //do nothing
+                    } else {
+                        if (position > musicObject.getIndexOfCurrentSong()) {
+                            Log.d("index", position + "");
+                            musicService.playNext(true);
+                        } else {
+                            musicService.playPreviousForVp(true);
+                        }
+                    }
+
+            }
+        },50);*/
+        if (position == musicObject.getIndexOfCurrentSong()) {
             //do nothing
-        }
-        else{
-            musicService.playNext(true);
+        } else {
+            if (position > musicObject.getIndexOfCurrentSong()) {
+                Log.d("index", position + "");
+                musicService.playNext(true);
+            } else {
+                musicService.playPreviousForVp(true);
+            }
         }
     }
 
@@ -236,6 +265,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         COLLAPSED,
         INTERNEDTATE
     }
+
     private CollapsingToolbarLayoutState mLayoutState = CollapsingToolbarLayoutState.EXPANDED;
 
     @Override
@@ -258,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         tvAppName = (TextView) findViewById(R.id.tvAppName);
         tvMusicName = (TextView) findViewById(R.id.tvMusicName);
         tvNextSongAppbar = (TextView) findViewById(R.id.tvNextSongAppbar);
+        tvNextSongToolBar = (TextView) findViewById(R.id.tvNextSongToolBar);
         tvSongPlayingAppbar = (TextView) findViewById(R.id.tvSongPlayingAppbar);
         ivThisSong = (ImageView) findViewById(R.id.ivThisSong);
         ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
@@ -268,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         seekBarController = new SeekBarController();
         seekBar.setMax(100);
 
-        slidingUpPanel = (SlidingUpPanelLayout)findViewById(R.id.sliding_layout);
+        slidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
         slidingUpPanel.addPanelSlideListener(this);
 
@@ -280,34 +311,33 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         ivNext.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
-        playerViewPager = new PlayerViewPager(MainActivity.this,getSupportFragmentManager());
+        playerViewPager = new PlayerViewPager(MainActivity.this, getSupportFragmentManager());
         setupTabs();
         showAnim();
         hideAnim();
         setControlBtnsWhilecreating();
         offsetchangeListening();
         tabLayout.setupWithViewPager(viewPager);
-        pageChangeListener = new PageChangeListener(MainActivity.this,this);
+        pageChangeListener = new PageChangeListener(MainActivity.this, this);
         vpSongPlaying.addOnPageChangeListener(pageChangeListener);
     }
 
     private void setControlBtnsWhilecreating() {
-        if(mServiceBound && musicService.isPlaying()){
+        if (mServiceBound && musicService.isPlaying()) {
             ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
-        }
-        else{
+        } else {
             ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_24dp));
         }
     }
 
     private void setControlBtns(boolean changeMediaPlayback) {
-        if (mServiceBound && musicService.isPlaying()){
+        if (mServiceBound && musicService.isPlaying()) {
             //pause the music
             ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_play_circle_filled_black_24dp));
             if (mServiceBound && changeMediaPlayback) {
                 musicService.pause();
             }
-        }else{
+        } else {
             ivplayPause.setImageDrawable(getResources().getDrawable(R.drawable.ic_pause_circle_filled_black_24dp));
             if (mServiceBound && changeMediaPlayback) {
                 musicService.resume();
@@ -357,20 +387,21 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.searchview,menu);
+        menuInflater.inflate(R.menu.searchview, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     private void setupTabs() {
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.add(new SongsListFragment(),"Songs");
-        viewPagerAdapter.add(new AlbumsListFragment(),"Albums");
-        viewPagerAdapter.add(new SongsListFragment(),"Genre");
+        viewPagerAdapter.add(new SongsListFragment(), "Songs");
+        viewPagerAdapter.add(new AlbumsListFragment(), "Albums");
+        viewPagerAdapter.add(new SongsListFragment(), "Genre");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(2);
-        viewPager.setPageTransformer(false,new ZoomOutPageTransformer());
+        viewPager.setPageTransformer(false, new ZoomOutPageTransformer());
         vpSongPlaying.setAdapter(playerViewPager);
     }
+
     private void showAnim() {
         mShowSet = new AnimationSet(true);
         ScaleAnimation scaleAnimation = new ScaleAnimation(0.0f, 1.0f, 1.0f, 1.0f,
@@ -389,7 +420,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         mHideSet = new AnimationSet(true);
         mHideSet.setInterpolator(new LinearInterpolator());
         AlphaAnimation alphaAnimation = new AlphaAnimation(1.0f, 0.0f);
-        TranslateAnimation  hiddenAction = new TranslateAnimation(Animation.RELATIVE_TO_SELF,
+        TranslateAnimation hiddenAction = new TranslateAnimation(Animation.RELATIVE_TO_SELF,
                 0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
                 Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
                 -1.0f);
@@ -398,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         mHideSet.setDuration(300);
     }
 
-    private class ViewPagerAdapter extends FragmentPagerAdapter{
+    private class ViewPagerAdapter extends FragmentPagerAdapter {
         private List<Fragment> fragmentList = new ArrayList<>();
         private List<String> fragmentTitleList = new ArrayList<>();
 
@@ -416,17 +447,19 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             return fragmentList.size();
         }
 
-        public void add(Fragment fragment,String title){
+        public void add(Fragment fragment, String title) {
             fragmentList.add(fragment);
             fragmentTitleList.add(title);
         }
-        public Fragment getFragment(int position){
-            if (fragmentList!=null && fragmentList.size()>position)
+
+        public Fragment getFragment(int position) {
+            if (fragmentList != null && fragmentList.size() > position)
                 return fragmentList.get(position);
 
             return null;
 
         }
+
         @Override
         public CharSequence getPageTitle(int position) {
             return fragmentTitleList.get(position);
@@ -436,8 +469,8 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     @Override
     protected void onStart() {
         super.onStart();
-        if (playerIntent == null && !mServiceBound && serviceConnection!=null){
-            playerIntent = new Intent(MainActivity.this,MusicService.class);
+        if (playerIntent == null && !mServiceBound && serviceConnection != null) {
+            playerIntent = new Intent(MainActivity.this, MusicService.class);
             bindService(playerIntent, serviceConnection, Context.BIND_AUTO_CREATE);
             startService(playerIntent);
         }
@@ -446,37 +479,42 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mServiceBound && serviceConnection!=null){
+        if (mServiceBound && serviceConnection != null) {
             unbindService(serviceConnection);
         }
     }
 
-    public void play(){
+    public void play() {
         if (mServiceBound) {
             //setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
+            musicService.playSong();
             playerViewPager.notifyDataSetChanged();
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
-            musicService.playSong();
         }
     }
 
-    private void setBackgroundRelativeToCurrentSong(TextView thisSong, TextView nextSong, final ImageView ivNext, final View... view) {
+    private void setBackgroundRelativeToCurrentSong(TextView thisSong, TextView nextSong, final ImageView ivNext, TextView tvNextSongToolBar, final View... view) {
         MusicPOJO musicPOJO = MusicPOJO.getInstance();
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         SongsPojo song = musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong());
-        if (thisSong != null){
+        if (thisSong != null) {
             thisSong.setText(song.getTitle());
         }
-        if (nextSong != null){
-            if (musicPOJO.getNowPlayingList()!= null && musicPOJO.getNowPlayingList().size() > musicPOJO.getIndexOfCurrentSong()+ 1){
-                nextSong.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()+1).getTitle());
+        if (nextSong != null) {
+            if (musicPOJO.getNowPlayingList() != null && musicPOJO.getNowPlayingList().size() > musicPOJO.getIndexOfCurrentSong() + 1) {
+                nextSong.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong() + 1).getTitle());
             }
         }
-        byte [] data = null;
+        if (tvNextSongToolBar != null) {
+            if (musicPOJO.getNowPlayingList() != null && musicPOJO.getNowPlayingList().size() > musicPOJO.getIndexOfCurrentSong() + 1) {
+                tvNextSongToolBar.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong() + 1).getTitle());
+            }
+        }
+        byte[] data = null;
         try {
             mmr.setDataSource(song.getPath());
             data = mmr.getEmbeddedPicture();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -485,12 +523,11 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         Glide.with(MainActivity.this).load(data).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                BitmapDrawable drawable = (BitmapDrawable) Utilities.createBlurredImageFromBitmap(resource,MainActivity.this,12);
-                for (View i:view) {
-                    if (i instanceof ImageView){
+                BitmapDrawable drawable = (BitmapDrawable) Utilities.createBlurredImageFromBitmap(resource, MainActivity.this, 12);
+                for (View i : view) {
+                    if (i instanceof ImageView) {
                         ((ImageView) i).setImageBitmap(resource);
-                    }
-                    else {
+                    } else {
                         i.setBackground(drawable);
                     }
                 }
@@ -499,14 +536,14 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
 
         data = null;
         try {
-            if (musicPOJO.getNowPlayingList()!=null) {
+            if (musicPOJO.getNowPlayingList() != null) {
                 mmr.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong() + 1).getPath());
                 data = mmr.getEmbeddedPicture();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        GildeUtils.getBitmapFromGlide(MainActivity.this,data, new GlideInterface() {
+        GildeUtils.getBitmapFromGlide(MainActivity.this, data, new GlideInterface() {
             @Override
             public void getBitmap(Bitmap bitmap) {
                 ivNext.setImageBitmap(bitmap);

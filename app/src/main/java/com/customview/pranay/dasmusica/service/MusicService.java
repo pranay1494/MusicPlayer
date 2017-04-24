@@ -37,6 +37,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private Handler mhandler;
     private boolean nextClicked;
     private boolean previousClicked;
+    private boolean vpPrevious;
 
     public MusicService() {}
 
@@ -61,12 +62,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }else if (isShuffle){
 
         }else if (previousClicked){
+            Log.d("next_test","previous");
             previousClicked = false;
-        } else{
+        }else if (vpPrevious){
+            Log.d("next_test","previousvp");
+            vpPrevious = false;
+        }else{
             if (!nextClicked){
+                Log.d("next_test","ohh no!!");
                 playNext(false);
             }
             else {
+                Log.d("next_test","next");
                 nextClicked = false;
             }
         }
@@ -75,7 +82,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private void sendNewSongInfoToActivity() {
         Message message = Message.obtain();
         message.arg2 = SONG_CHANGED;
-        mhandler.sendMessage(message);
+        mhandler.sendMessageDelayed(
+                message,100);
     }
 
     @Override
@@ -88,7 +96,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         try {
             mp.start();
             sendNewSongInfoToActivity();
-            updateProgressBar();
+            //updateProgressBar();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -96,6 +104,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void pause() {
         player.pause();
+    }
+
+    public long getDuration() {
+        if (isPlaying()){
+            return player.getDuration();
+        }
+        return 0;
+    }
+
+    public long getCurrentPosition() {
+        return player.getCurrentPosition();
     }
 
     public class MyBinder extends Binder{
@@ -134,7 +153,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             player.reset();
             player.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getPath());
             player.prepareAsync();
-
         } catch (Exception e) {
             Toast.makeText(this, "Sorry This Song Cannot Be Played !!", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
@@ -177,7 +195,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         int totalDuration = player.getDuration();
         int currentPosition = SeekbarTime.progressToTimer(progress, totalDuration);
         player.seekTo(currentPosition);
-        updateProgressBar();
     }
 
     public boolean isPlaying(){
@@ -195,9 +212,22 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
         }
         Log.d("current_index",music.getIndexOfCurrentSong()+"");
-        sendNewSongInfoToActivity();
         playSong();
-        updateProgressBar();
+    }
+
+    public void playPreviousForVp(boolean clicked) {
+        vpPrevious = clicked;
+        if (music.getNowPlayingList()!=null && music.getNowPlayingList().size() > 0 && music.getIndexOfCurrentSong()>0 ){
+            music.setIndexOfCurrentSong(music.getIndexOfCurrentSong()-1);
+        }
+        else{
+            player.seekTo(0);
+        }
+        if (music!=null && music.getNowPlayingList()!=null &&music.getNowPlayingList().size()>0) {
+            music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
+        }
+        playSong();
+
     }
 
     public void playPrevious(boolean clicked){
@@ -218,9 +248,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (music!=null && music.getNowPlayingList()!=null &&music.getNowPlayingList().size()>0) {
             music.getNowPlayingList().get(music.getIndexOfCurrentSong()).setPalying(true);
         }
-        sendNewSongInfoToActivity();
         playSong();
-        updateProgressBar();
     }
     public void nextSong(){
         player.stop();
