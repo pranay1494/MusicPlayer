@@ -61,7 +61,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
         }else if (isShuffle){
 
-        }else if (previousClicked){
+        }
+        /*else if (previousClicked){
             Log.d("next_test","previous");
             previousClicked = false;
         }else if (vpPrevious){
@@ -76,6 +77,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 Log.d("next_test","next");
                 nextClicked = false;
             }
+        }*/
+        else{
+            playNext(false);
         }
     }
 

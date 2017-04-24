@@ -59,12 +59,14 @@ import com.customview.pranay.dasmusica.utils.Utilities;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements PageChangeForViewPager, SlidingUpPanelLayout.PanelSlideListener, SongSelected, SongsListFragment.SongListUpdated, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
+    private ImageView ivShuffle;
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -111,6 +113,9 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             }
             setControlBtnsWhilecreating();
             if (msg.arg2 == MusicService.SONG_CHANGED) {
+                seekBar.setEnabled(true);
+                seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+                handler.postDelayed(mUpdateTimeTask, 100);
                 if (tvMusicName != null) {
                     if (musicObject.getNowPlayingList() != null && musicObject.getNowPlayingList().size() > 0) {
                         String name = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle();
@@ -199,14 +204,30 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             setControlBtns(true);
         } else if (v.getId() == R.id.ivNext) {
             Log.d("index", "clicked Next");
-            musicService.playNext(true);
+            musicService.playNext(false);
         } else if (v.getId() == R.id.ivPrevious) {
             musicService.playPrevious(true);
+        }else if (v.getId() == R.id.ivShuffle){
+            shuffleSongList();
         }
         seekBar.setEnabled(true);
         seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
         handler.postDelayed(mUpdateTimeTask, 100);
 
+    }
+
+    private void shuffleSongList() {
+        SongsPojo song;
+        if (musicObject.getNowPlayingList()!=null &&musicObject.getNowPlayingList().size()>musicObject.getIndexOfCurrentSong()) {
+            song = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong());
+            musicObject.getNowPlayingList().remove(musicObject.getIndexOfCurrentSong());
+            Collections.shuffle(musicObject.getNowPlayingList());
+            musicObject.getNowPlayingList().add(0,song);
+            musicObject.setIndexOfCurrentSong(0);
+            musicObject.getNowPlayingList().get(0).setPalying(true);
+            vpSongPlaying.setCurrentItem(0);
+            vpSongPlaying.setAdapter(playerViewPager);
+        }
     }
 
     @Override
@@ -275,10 +296,13 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         } else {
             if (position > musicObject.getIndexOfCurrentSong()) {
                 Log.d("index", position + "");
-                musicService.playNext(true);
+                musicService.playNext(false);
             } else {
                 musicService.playPreviousForVp(true);
             }
+            seekBar.setEnabled(true);
+            seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+            handler.postDelayed(mUpdateTimeTask, 100);
         }
     }
 
@@ -319,6 +343,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         ivPrevious = (ImageView) findViewById(R.id.ivPrevious);
         ivCross = (ImageView) findViewById(R.id.ivCross);
         ivNext = (ImageView) findViewById(R.id.ivNext);
+        ivShuffle = (ImageView) findViewById(R.id.ivShuffle);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBarController = new SeekBarController();
         seekBar.setMax(100);
@@ -334,6 +359,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         ivPrevious.setOnClickListener(this);
         ivplayPause.setOnClickListener(this);
         ivNext.setOnClickListener(this);
+        ivShuffle.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
 
         playerViewPager = new PlayerViewPager(MainActivity.this, getSupportFragmentManager());
