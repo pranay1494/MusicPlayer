@@ -83,7 +83,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         Message message = Message.obtain();
         message.arg2 = SONG_CHANGED;
         mhandler.sendMessageDelayed(
-                message,100);
+                message,200);
     }
 
     @Override
@@ -139,7 +139,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void resume(){
         try {
             if (player != null) {
-                player.prepareAsync();
                 player.start();
             }
         }catch (Exception e){

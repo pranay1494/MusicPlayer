@@ -84,8 +84,10 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     public ImageView ivThisSong;
     private ImageView ivNextSong;
     private ImageView ivNext;
+    private ImageView ivCross;
     private ImageView ivPrevious;
     private ImageView ivplayPause;
+    private ImageView ivEq;
     private SeekBar seekBar;
     private SeekBarController seekBarController;
     private MusicPOJO musicObject = MusicPOJO.getInstance();
@@ -107,12 +109,13 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
                 seekBar.setEnabled(true);
                 seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
             }
+            setControlBtnsWhilecreating();
             if (msg.arg2 == MusicService.SONG_CHANGED) {
                 if (tvMusicName != null) {
                     if (musicObject.getNowPlayingList() != null && musicObject.getNowPlayingList().size() > 0) {
                         String name = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle();
                         tvMusicName.setText(name);
-                        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong);
+                        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
                         if (viewPagerAdapter != null) {
                             /**
                              * to refresh the list if song is changed to indicate currently playing song.
@@ -136,17 +139,21 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     };
     private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
-            long totalDuration = musicService.getDuration();
-            long currentDuration = musicService.getCurrentPosition();
-            // Updating progress bar
-            int progress = (int)(SeekbarTime.getProgressPercentage(currentDuration, totalDuration));
-            //Log.d("Progress", ""+progress);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                seekBar.setProgress(progress,true);
-            }
+            if (mServiceBound && musicService.isPlaying()) {
+                long totalDuration = musicService.getDuration();
+                long currentDuration = musicService.getCurrentPosition();
+                // Updating progress bar
+                int progress = (int) (SeekbarTime.getProgressPercentage(currentDuration, totalDuration));
+                //Log.d("Progress", ""+progress);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    seekBar.setProgress(progress, true);
+                } else {
+                    seekBar.setProgress(progress);
+                }
 
-            // Running this thread after 100 milliseconds
-            handler.postDelayed(this, 100);
+                // Running this thread after 100 milliseconds
+                handler.postDelayed(this, 100);
+            }
         }
     };
 
@@ -158,11 +165,12 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             MusicService.MyBinder binder = (MusicService.MyBinder) service;
             musicService = binder.getService();
             musicService.setHandler(handler);
-            /*if (mServiceBound && !musicService.isPlaying()) {
+            if (mServiceBound && !musicService.isPlaying()) {
                 seekBar.setEnabled(false);
                 seekBar.setThumb(null);
-            }*/
+            }
             handler.postDelayed(mUpdateTimeTask, 100);
+            setControlBtnsWhilecreating();
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {
@@ -195,6 +203,10 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         } else if (v.getId() == R.id.ivPrevious) {
             musicService.playPrevious(true);
         }
+        seekBar.setEnabled(true);
+        seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+        handler.postDelayed(mUpdateTimeTask, 100);
+
     }
 
     @Override
@@ -224,9 +236,19 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     @Override
     public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
         if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
-            Toast.makeText(this, "expanded slider", Toast.LENGTH_SHORT).show();
+            ivEq.setVisibility(View.GONE);
+            ivCross.setVisibility(View.VISIBLE);
         } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
-            Toast.makeText(this, "collapsed slider", Toast.LENGTH_SHORT).show();
+            ivEq.setVisibility(View.VISIBLE);
+            ivCross.setVisibility(View.GONE);
+        }else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
+            if (!ivEq.isShown()) {
+                ivEq.setVisibility(View.VISIBLE);
+                ivCross.setVisibility(View.GONE);
+            }else{
+                ivEq.setVisibility(View.GONE);
+                ivCross.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -279,6 +301,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             getSupportActionBar().setDisplayShowTitleEnabled(false);
         }
         ivFavorite = (ImageView) findViewById(R.id.ivFavorite);
+        ivEq = (ImageView) findViewById(R.id.ivEq);
         tabLayout = (TabLayout) findViewById(R.id.tablayout);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         vpSongPlaying = (ViewPager) findViewById(R.id.vpPlayer);
@@ -294,6 +317,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
         ivplayPause = (ImageView) findViewById(R.id.ivplayPause);
         ivPrevious = (ImageView) findViewById(R.id.ivPrevious);
+        ivCross = (ImageView) findViewById(R.id.ivCross);
         ivNext = (ImageView) findViewById(R.id.ivNext);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBarController = new SeekBarController();
@@ -302,7 +326,8 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         slidingUpPanel = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         slidingUpPanel.setDragView(this.findViewById(R.id.slideHeader));
         slidingUpPanel.addPanelSlideListener(this);
-
+        tvMusicName.setSelected(true);
+        tvNextSongToolBar.setSelected(true);
         tvSongPlayingAppbar.setSelected(true);
         tvNextSongAppbar.setSelected(true);
         ivThisSong.setOnClickListener(this);
@@ -315,7 +340,6 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         setupTabs();
         showAnim();
         hideAnim();
-        setControlBtnsWhilecreating();
         offsetchangeListening();
         tabLayout.setupWithViewPager(viewPager);
         pageChangeListener = new PageChangeListener(MainActivity.this, this);
@@ -489,6 +513,9 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             //setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
             musicService.playSong();
             playerViewPager.notifyDataSetChanged();
+            seekBar.setEnabled(true);
+            seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+            handler.postDelayed(mUpdateTimeTask, 100);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
         }
     }
@@ -549,6 +576,5 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
                 ivNext.setImageBitmap(bitmap);
             }
         });
-
     }
 }

@@ -67,7 +67,7 @@ public class PlayerViewPagerFragment extends Fragment {
         }catch (Exception e){
             e.printStackTrace();
         }
-        Glide.with(context).load(data).into(view);
+        Glide.with(context).load(data).placeholder(R.drawable.nowplaying).into(view);
     }
 }
 

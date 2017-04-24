@@ -14,13 +14,21 @@
         android:weightSum="10">
 
         <ImageView xmlns:custom="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/equalizer_view"
+            android:id="@+id/ivCross"
             android:layout_width="0dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/filterTopSpace"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="10dp"
             android:layout_weight="1"
             app:srcCompat="@drawable/ic_close_black_24dp" />
+        <ImageView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/ivEq"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/filterTopSpace"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:visibility="gone"/>
 
         <TextView
             android:id="@+id/tvMusicName"
@@ -32,13 +40,14 @@
             android:gravity="left"
             android:maxLines="1"
             android:ellipsize="marquee"
+            android:singleLine="true"
             android:text="The Awesome Sliding Up Panel"
-            android:textSize="@dimen/d16" />
+            android:textSize="@dimen/d20" />
 
         <ImageView
             android:id="@+id/ivFavorite"
             android:layout_width="0dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/filterTopSpace"
             android:layout_gravity="center_vertical"
             android:layout_weight="1.5"
             android:clickable="true"
@@ -46,7 +55,7 @@
 
         <ImageView
             android:layout_width="0dp"
-            android:layout_height="30dp"
+            android:layout_height="@dimen/filterTopSpace"
             android:layout_gravity="center"
             android:layout_weight="1.5"
             android:clickable="true"
@@ -60,8 +69,7 @@
         android:layout_above="@+id/rlplayerControls"
         android:layout_below="@+id/slideHeader"
         android:clickable="true"
-        android:layout_marginBottom="@dimen/d10"
-        android:background="@drawable/nowplaying">
+        android:layout_marginBottom="@dimen/d10">
 
     </android.support.v4.view.ViewPager>
     <LinearLayout
