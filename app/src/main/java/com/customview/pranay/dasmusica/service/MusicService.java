@@ -58,27 +58,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCompletion(MediaPlayer mp) {
         if (isRepeat){
-
+            playSong();
         }else if (isShuffle){
 
-        }
-        /*else if (previousClicked){
-            Log.d("next_test","previous");
-            previousClicked = false;
-        }else if (vpPrevious){
-            Log.d("next_test","previousvp");
-            vpPrevious = false;
         }else{
-            if (!nextClicked){
-                Log.d("next_test","ohh no!!");
-                playNext(false);
-            }
-            else {
-                Log.d("next_test","next");
-                nextClicked = false;
-            }
-        }*/
-        else{
             playNext(false);
         }
     }
@@ -119,6 +102,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public long getCurrentPosition() {
         return player.getCurrentPosition();
+    }
+
+    public void repeatSong(boolean repeat){
+        isRepeat = repeat;
     }
 
     public class MyBinder extends Binder{

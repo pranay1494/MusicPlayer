@@ -69,7 +69,8 @@
         android:layout_above="@+id/rlplayerControls"
         android:layout_below="@+id/slideHeader"
         android:clickable="true"
-        android:layout_marginBottom="@dimen/d10">
+        android:background="@drawable/nowplaying"
+        android:layout_marginBottom="@dimen/d5">
 
     </android.support.v4.view.ViewPager>
     <LinearLayout
@@ -77,10 +78,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:layout_marginBottom="@dimen/d12"
+        android:orientation="vertical"
+        android:layout_marginBottom="@dimen/d7"
         android:weightSum="10">
-
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_marginTop="@dimen/d10"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/d31"
+            android:splitTrack="false"
+            android:layout_marginBottom="@dimen/d10"
+            android:thumb="@drawable/seekbarthumb_24dp"
+            android:progressTint="#760bac"
+            android:thumbOffset="0dp" />
         <include layout="@layout/layout_player_controls" />
     </LinearLayout>
 </RelativeLayout>

@@ -16,7 +16,36 @@ public class MusicPOJO {
     private ArrayList<SongsPojo> songs = new ArrayList<>();
     private ArrayList<AlbumPojo> albums = new ArrayList<>();
     private ArrayList<SongsPojo> nowPlayingList = new ArrayList<>();
+    private ArrayList<SongsPojo> tempNowPlayingList = new ArrayList<>();
+    private ArrayList<SongsPojo> tempListForRepeat = new ArrayList<>();
     private int indexOfCurrentSong;
+    private int tempIndexOfCurrentSong;
+    private int tempIndexForRepeat;
+
+    public ArrayList<SongsPojo> getTempListForRepeat() {
+        return tempListForRepeat;
+    }
+
+    public void setTempListForRepeat(ArrayList<SongsPojo> tempListFooRepeat) {
+        this.tempListForRepeat = tempListForRepeat;
+    }
+
+    public int getTempIndexForRepeat() {
+        return tempIndexForRepeat;
+    }
+
+    public void setTempIndexForRepeat(int tempIndexForRepeat) {
+        this.tempIndexForRepeat = tempIndexForRepeat;
+    }
+
+    public int getTempIndexOfCurrentSong() {
+
+        return tempIndexOfCurrentSong;
+    }
+
+    public void setTempIndexOfCurrentSong(int tempIndexOfCurrentSong) {
+        this.tempIndexOfCurrentSong = tempIndexOfCurrentSong;
+    }
 
     public int getIndexOfCurrentSong() {
         return indexOfCurrentSong;
@@ -40,7 +69,9 @@ public class MusicPOJO {
     }
 
     public void setNowPlayingList(ArrayList<SongsPojo> nowPlayingList) {
-        this.nowPlayingList = nowPlayingList;
+        for (SongsPojo song: nowPlayingList) {
+            this.nowPlayingList.add(song);
+        }
     }
 
     public void clearNowPlayingList(){
@@ -53,6 +84,20 @@ public class MusicPOJO {
 
     public void setSongsList(ArrayList<SongsPojo> songs) {
         this.songs = songs;
+    }
+
+    public ArrayList<SongsPojo> getTempNowPlayingList() {
+        return tempNowPlayingList;
+    }
+
+    public void setTempNowPlayingList(ArrayList<SongsPojo> tempNowPlayingList) {
+        this.tempNowPlayingList.clear();
+        for (SongsPojo song: tempNowPlayingList) {
+            this.tempNowPlayingList.add(song);
+        }
+    }
+    public void addToTempList(SongsPojo song){
+        tempListForRepeat.add(song);
     }
 
     public void setSong(SongsPojo song){

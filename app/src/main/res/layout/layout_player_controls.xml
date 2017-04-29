@@ -1,18 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/player_control"
+    android:layout_height="wrap_content"
     android:layout_alignParentBottom="true"
+    android:layout_marginTop="@dimen/d5"
     android:orientation="vertical">
-
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:splitTrack="false"
-        android:thumb="@drawable/seekbarthumb_24dp"
-        android:progressTint="#760bac"
-        android:thumbOffset="0dp" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -30,6 +22,14 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="2"
             app:srcCompat="@drawable/ic_repeat_black_24dp" />
+        <ImageView
+            android:id="@+id/ivRepeatSelected"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/d31"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="2"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_repeat_selected" />
 
         <ImageView
             android:id="@+id/ivPrevious"
@@ -62,5 +62,13 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="2"
             app:srcCompat="@drawable/ic_shuffle_black_24dp" />
+        <ImageView
+            android:id="@+id/ivShuffleSelected"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/d31"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="2"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_shuffle_selected" />
     </LinearLayout>
 </LinearLayout>

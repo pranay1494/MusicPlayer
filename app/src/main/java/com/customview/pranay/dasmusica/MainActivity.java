@@ -85,10 +85,13 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
     private TextView tvMusicName;
     public ImageView ivThisSong;
     private ImageView ivNextSong;
+    private ImageView ivRepeatSelected;
+    private ImageView ivRepeat;
     private ImageView ivNext;
     private ImageView ivCross;
     private ImageView ivPrevious;
     private ImageView ivplayPause;
+    private ImageView ivShuffleSelected;
     private ImageView ivEq;
     private SeekBar seekBar;
     private SeekBarController seekBarController;
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             if (msg.arg2 == MusicService.SONG_CHANGED) {
                 seekBar.setEnabled(true);
                 seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+                handler.removeCallbacks(mUpdateTimeTask);
                 handler.postDelayed(mUpdateTimeTask, 100);
                 if (tvMusicName != null) {
                     if (musicObject.getNowPlayingList() != null && musicObject.getNowPlayingList().size() > 0) {
@@ -157,6 +161,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
                 }
 
                 // Running this thread after 100 milliseconds
+                handler.removeCallbacks(mUpdateTimeTask);
                 handler.postDelayed(this, 100);
             }
         }
@@ -174,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
                 seekBar.setEnabled(false);
                 seekBar.setThumb(null);
             }
+            handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask, 100);
             setControlBtnsWhilecreating();
         }
@@ -205,29 +211,109 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         } else if (v.getId() == R.id.ivNext) {
             Log.d("index", "clicked Next");
             musicService.playNext(false);
+            ivRepeat.setVisibility(View.VISIBLE);
+            ivRepeatSelected.setVisibility(View.GONE);
+            ivShuffle.setVisibility(View.VISIBLE);
+            ivShuffleSelected.setVisibility(View.GONE);
         } else if (v.getId() == R.id.ivPrevious) {
             musicService.playPrevious(true);
+            ivRepeat.setVisibility(View.VISIBLE);
+            ivRepeatSelected.setVisibility(View.GONE);
+            ivShuffle.setVisibility(View.VISIBLE);
+            ivShuffleSelected.setVisibility(View.GONE);
         }else if (v.getId() == R.id.ivShuffle){
             shuffleSongList();
+        }else if (v.getId() == R.id.ivShuffleSelected){
+            shuffleSongList();
+        }else if (v.getId() == R.id.ivRepeat){
+            musicService.repeatSong(true);
+            ivRepeatSelected.setVisibility(View.VISIBLE);
+            ivRepeat.setVisibility(View.GONE);
+        }else if (v.getId() == R.id.ivRepeatSelected){
+            musicService.repeatSong(false);
+            ivRepeatSelected.setVisibility(View.GONE);
+            ivRepeat.setVisibility(View.VISIBLE);
         }
         seekBar.setEnabled(true);
         seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+        handler.removeCallbacks(mUpdateTimeTask);
         handler.postDelayed(mUpdateTimeTask, 100);
+
+    }
+
+    private void repeatSong() {
+        if (ivRepeat.isShown()){
+            if (musicObject.getNowPlayingList()!=null && musicObject.getNowPlayingList().size() > musicObject.getIndexOfCurrentSong()) {
+                ArrayList<SongsPojo> templist = musicObject.getTempListForRepeat();
+                for (SongsPojo song : musicObject.getNowPlayingList()) {
+                    templist.add(song);
+                }
+                musicObject.setTempIndexForRepeat(musicObject.getIndexOfCurrentSong());
+                SongsPojo song = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong());
+                musicObject.getNowPlayingList().clear();
+                musicObject.getNowPlayingList().add(song);
+                musicObject.setIndexOfCurrentSong(0);
+                musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).setPalying(true);
+                vpSongPlaying.setAdapter(playerViewPager);
+                vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            }
+
+            ivRepeatSelected.setVisibility(View.VISIBLE);
+            ivRepeat.setVisibility(View.GONE);
+        }
+        else if (ivRepeatSelected.isShown()){
+            musicObject.getNowPlayingList().clear();
+            for (SongsPojo song : musicObject.getTempListForRepeat()) {
+                musicObject.getNowPlayingList().add(song);
+            }
+            musicObject.setIndexOfCurrentSong(musicObject.getTempIndexForRepeat());
+            musicObject.setTempIndexForRepeat(0);
+            musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).setPalying(true);
+            vpSongPlaying.setAdapter(playerViewPager);
+            vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            ivRepeatSelected.setVisibility(View.GONE);
+            ivRepeat.setVisibility(View.VISIBLE);
+
+        }
+        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
 
     }
 
     private void shuffleSongList() {
         SongsPojo song;
-        if (musicObject.getNowPlayingList()!=null &&musicObject.getNowPlayingList().size()>musicObject.getIndexOfCurrentSong()) {
-            song = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong());
-            musicObject.getNowPlayingList().remove(musicObject.getIndexOfCurrentSong());
-            Collections.shuffle(musicObject.getNowPlayingList());
-            musicObject.getNowPlayingList().add(0,song);
-            musicObject.setIndexOfCurrentSong(0);
-            musicObject.getNowPlayingList().get(0).setPalying(true);
-            vpSongPlaying.setCurrentItem(0);
-            vpSongPlaying.setAdapter(playerViewPager);
+        if (ivShuffle.isShown()){
+            if (musicObject.getNowPlayingList()!=null &&musicObject.getNowPlayingList().size()>musicObject.getIndexOfCurrentSong()) {
+                musicObject.setTempNowPlayingList(musicObject.getNowPlayingList());
+                song = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong());
+                musicObject.getNowPlayingList().remove(musicObject.getIndexOfCurrentSong());
+                musicObject.setTempIndexOfCurrentSong(musicObject.getIndexOfCurrentSong());
+                Collections.shuffle(musicObject.getNowPlayingList());
+                musicObject.getNowPlayingList().add(0,song);
+                musicObject.setIndexOfCurrentSong(0);
+                musicObject.getNowPlayingList().get(0).setPalying(true);
+                vpSongPlaying.setAdapter(playerViewPager);
+                vpSongPlaying.setCurrentItem(0);
+            }
+            ivShuffle.setVisibility(View.GONE);
+            ivShuffleSelected.setVisibility(View.VISIBLE);
+        }else if(ivShuffleSelected.isShown()){
+            int index = 0;
+            if (null != musicObject.getTempNowPlayingList()){
+                if (musicObject.getTempNowPlayingList().contains(musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()))){
+                    index = musicObject.getTempNowPlayingList().indexOf(musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()));
+                }
+                musicObject.getNowPlayingList().clear();
+                musicObject.setNowPlayingList(musicObject.getTempNowPlayingList());
+                musicObject.setIndexOfCurrentSong(index);
+                vpSongPlaying.setAdapter(playerViewPager);
+                vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            }else{
+                Toast.makeText(this, "Something went wrong!!", Toast.LENGTH_SHORT).show();
+            }
+            ivShuffle.setVisibility(View.VISIBLE);
+            ivShuffleSelected.setVisibility(View.GONE);
         }
+        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
     }
 
     @Override
@@ -237,12 +323,13 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-
+        handler.removeCallbacks(mUpdateTimeTask);
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         musicService.seekToTime(seekBar.getProgress());
+        handler.postDelayed(mUpdateTimeTask,100);
     }
 
     /**
@@ -302,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             }
             seekBar.setEnabled(true);
             seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+            handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask, 100);
         }
     }
@@ -341,9 +429,12 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
         ivplayPause = (ImageView) findViewById(R.id.ivplayPause);
         ivPrevious = (ImageView) findViewById(R.id.ivPrevious);
+        ivRepeatSelected = (ImageView) findViewById(R.id.ivRepeatSelected);
+        ivRepeat = (ImageView) findViewById(R.id.ivRepeat);
         ivCross = (ImageView) findViewById(R.id.ivCross);
         ivNext = (ImageView) findViewById(R.id.ivNext);
         ivShuffle = (ImageView) findViewById(R.id.ivShuffle);
+        ivShuffleSelected = (ImageView) findViewById(R.id.ivShuffleSelected);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBarController = new SeekBarController();
         seekBar.setMax(100);
@@ -356,8 +447,12 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         tvSongPlayingAppbar.setSelected(true);
         tvNextSongAppbar.setSelected(true);
         ivThisSong.setOnClickListener(this);
+        ivRepeatSelected.setOnClickListener(this);
+        ivRepeat.setOnClickListener(this);
         ivPrevious.setOnClickListener(this);
         ivplayPause.setOnClickListener(this);
+        ivShuffleSelected.setOnClickListener(this);
+
         ivNext.setOnClickListener(this);
         ivShuffle.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
@@ -541,8 +636,13 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             playerViewPager.notifyDataSetChanged();
             seekBar.setEnabled(true);
             seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
+            handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask, 100);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            ivRepeat.setVisibility(View.VISIBLE);
+            ivRepeatSelected.setVisibility(View.GONE);
+            ivShuffle.setVisibility(View.VISIBLE);
+            ivShuffleSelected.setVisibility(View.GONE);
         }
     }
 
