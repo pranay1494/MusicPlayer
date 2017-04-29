@@ -47,6 +47,7 @@ import com.customview.pranay.dasmusica.fragment.AlbumsListFragment;
 import com.customview.pranay.dasmusica.fragment.SongsListFragment;
 import com.customview.pranay.dasmusica.interfaces.GlideInterface;
 import com.customview.pranay.dasmusica.interfaces.PageChangeForViewPager;
+import com.customview.pranay.dasmusica.interfaces.SongListPopupInterface;
 import com.customview.pranay.dasmusica.interfaces.SongSelected;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.model.SongsPojo;
@@ -62,7 +63,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements PageChangeForViewPager, SlidingUpPanelLayout.PanelSlideListener, SongSelected, SongsListFragment.SongListUpdated, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class MainActivity extends AppCompatActivity implements SongListPopupInterface,PageChangeForViewPager, SlidingUpPanelLayout.PanelSlideListener, SongSelected, SongsListFragment.SongListUpdated, View.OnClickListener, SeekBar.OnSeekBarChangeListener {
 
     private SlidingUpPanelLayout slidingUpPanel;
     private ImageView ivFavorite;
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
     }
 
+    private int position =-1;
     /**
      * Made to update seekBar progress with media.
      */
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
                 handler.removeCallbacks(mUpdateTimeTask);
                 handler.postDelayed(mUpdateTimeTask, 100);
                 if (tvMusicName != null) {
-                    if (musicObject.getNowPlayingList() != null && musicObject.getNowPlayingList().size() > 0) {
+                    if (musicObject.getNowPlayingList() != null && musicObject.getNowPlayingList().size() > 0 && position!=musicObject.getIndexOfCurrentSong()) {
                         String name = musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle();
                         tvMusicName.setText(name);
                         setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
@@ -131,6 +133,9 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
                              */
                             Fragment fragment = viewPagerAdapter.getFragment(0);
                             ((SongsListFragment) fragment).refreshList();
+                        }
+                        if (position <musicObject.getIndexOfCurrentSong()) {
+                            position = musicObject.getIndexOfCurrentSong();
                         }
                     }
                 }
@@ -213,14 +218,11 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             musicService.playNext(false);
             ivRepeat.setVisibility(View.VISIBLE);
             ivRepeatSelected.setVisibility(View.GONE);
-            ivShuffle.setVisibility(View.VISIBLE);
-            ivShuffleSelected.setVisibility(View.GONE);
         } else if (v.getId() == R.id.ivPrevious) {
             musicService.playPrevious(true);
+//            if (seekBar.getProgress()<5)
             ivRepeat.setVisibility(View.VISIBLE);
             ivRepeatSelected.setVisibility(View.GONE);
-            ivShuffle.setVisibility(View.VISIBLE);
-            ivShuffleSelected.setVisibility(View.GONE);
         }else if (v.getId() == R.id.ivShuffle){
             shuffleSongList();
         }else if (v.getId() == R.id.ivShuffleSelected){
@@ -391,6 +393,16 @@ public class MainActivity extends AppCompatActivity implements PageChangeForView
             seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
             handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask, 100);
+            ivRepeat.setVisibility(View.VISIBLE);
+            ivRepeatSelected.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void popupItemClicked(int position) {
+        if (position == 1 || position == 2){
+            vpSongPlaying.setAdapter(playerViewPager);
+            vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
         }
     }
 

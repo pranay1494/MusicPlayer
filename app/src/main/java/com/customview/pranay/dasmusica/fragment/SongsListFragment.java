@@ -74,7 +74,7 @@ public class SongsListFragment extends Fragment {
                     }
                 }
             }
-        });
+        },(MainActivity)context);
         layoutManager = new LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
