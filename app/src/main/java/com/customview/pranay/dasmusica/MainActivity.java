@@ -14,6 +14,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
     private TextView tvSongPlayingAppbar;
     private TextView tvNextSongAppbar;
     private TextView tvNextSongToolBar;
+    private TextView tvTotalDuration;
+    private TextView tvCurrentDuration;
     private TextView tvMusicName;
     public ImageView ivThisSong;
     private ImageView ivNextSong;
@@ -156,17 +160,15 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             if (mServiceBound && musicService.isPlaying()) {
                 long totalDuration = musicService.getDuration();
                 long currentDuration = musicService.getCurrentPosition();
-                // Updating progress bar
+                tvTotalDuration.setText(""+SeekbarTime.milliSecondsToTimer(totalDuration));
+                tvCurrentDuration.setText(""+SeekbarTime.milliSecondsToTimer(currentDuration));
                 int progress = (int) (SeekbarTime.getProgressPercentage(currentDuration, totalDuration));
-                //Log.d("Progress", ""+progress);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     seekBar.setProgress(progress, true);
                 } else {
                     seekBar.setProgress(progress);
                 }
-
-                // Running this thread after 100 milliseconds
-                handler.removeCallbacks(mUpdateTimeTask);
+                //handler.removeCallbacks(mUpdateTimeTask);
                 handler.postDelayed(this, 100);
             }
         }
@@ -400,10 +402,18 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
 
     @Override
     public void popupItemClicked(int position) {
+        String text = "";
         if (position == 1 || position == 2){
+            if (position == 1)
+                text = "Selected song wll play next";
+            else
+                text ="Song added to queue";
             vpSongPlaying.setAdapter(playerViewPager);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
         }
+        Snackbar snackbar = Snackbar.make((CoordinatorLayout)findViewById(R.id.rlMain), text, Snackbar.LENGTH_SHORT);
+        snackbar.show();
+        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
     }
 
     public enum CollapsingToolbarLayoutState {
@@ -434,6 +444,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         rlNextSongForAppBar = (RelativeLayout) findViewById(R.id.rlNextSongForAppBar);
         tvAppName = (TextView) findViewById(R.id.tvAppName);
         tvMusicName = (TextView) findViewById(R.id.tvMusicName);
+        tvTotalDuration = (TextView) findViewById(R.id.tvTotalDuration);
+        tvCurrentDuration = (TextView) findViewById(R.id.tvCurrentDuration);
         tvNextSongAppbar = (TextView) findViewById(R.id.tvNextSongAppbar);
         tvNextSongToolBar = (TextView) findViewById(R.id.tvNextSongToolBar);
         tvSongPlayingAppbar = (TextView) findViewById(R.id.tvSongPlayingAppbar);
@@ -552,7 +564,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.add(new SongsListFragment(), "Songs");
         viewPagerAdapter.add(new AlbumsListFragment(), "Albums");
-        viewPagerAdapter.add(new SongsListFragment(), "Genre");
+        viewPagerAdapter.add(new SongsListFragment(), "Playlists");
         viewPager.setAdapter(viewPagerAdapter);
         viewPager.setOffscreenPageLimit(2);
         viewPager.setPageTransformer(false, new ZoomOutPageTransformer());
@@ -685,15 +697,17 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
 
         tvSongPlayingAppbar.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getTitle());
 
-        Glide.with(MainActivity.this).load(data).asBitmap().centerCrop().into(new SimpleTarget<Bitmap>() {
+        Glide.with(MainActivity.this).load(data).asBitmap().centerCrop().placeholder(R.drawable.nowplaying).into(new SimpleTarget<Bitmap>() {
             @Override
             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                BitmapDrawable drawable = (BitmapDrawable) Utilities.createBlurredImageFromBitmap(resource, MainActivity.this, 12);
-                for (View i : view) {
-                    if (i instanceof ImageView) {
-                        ((ImageView) i).setImageBitmap(resource);
-                    } else {
-                        i.setBackground(drawable);
+                if (resource!=null) {
+                    BitmapDrawable drawable = (BitmapDrawable) Utilities.createBlurredImageFromBitmap(resource, MainActivity.this, 12);
+                    for (View i : view) {
+                        if (i instanceof ImageView) {
+                            ((ImageView) i).setImageBitmap(resource);
+                        } else {
+                            i.setBackground(drawable);
+                        }
                     }
                 }
             }

@@ -19,7 +19,7 @@
             sothree:umanoPanelHeight="@dimen/grid_image_height"
             sothree:umanoShadowHeight="4dp">
 
-            <include layout="@layout/layout_tabs" />
+            <include layout="@layout/layout_album_details" />
 
             <include layout="@layout/layout_player" />
 
