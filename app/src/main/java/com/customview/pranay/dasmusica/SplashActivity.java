@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -45,10 +46,25 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
     private Animation animation;
     private ContentResolver contentResolver;
     private Context context;
+    boolean isSongListLoaded;
 
     private Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
     private Uri albumsUri = MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
     private String musicSelectionArgs = MediaStore.Audio.Media.IS_MUSIC + "!=0";
+    private String albumMusicselectionArgs = musicSelectionArgs + " and album_id" + "=?";
+
+    Handler splashHandler = new Handler();
+    private boolean isAlbumLoaded;
+    Runnable openMainActivity = new Runnable() {
+        @Override
+        public void run() {
+            if (isSongListLoaded && isAlbumLoaded){
+                Intent intent = new Intent(SplashActivity.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,15 +82,12 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
 
         animation = AnimationUtils.loadAnimation(this,R.anim.splashtext);
         splashText.startAnimation(animation);
-
+        splashHandler.postDelayed(openMainActivity,100);
         /*animationDrawable = (AnimationDrawable) mainLayout.getBackground();
         animationDrawable.setEnterFadeDuration(5000);
         animationDrawable.setExitFadeDuration(2000);*/
 
         context = this;
-
-        getDensity();
-
         setMusicList();
         new Thread(new Runnable() {
             @Override
@@ -84,45 +97,10 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
         }).start();
     }
 
-    private void getDensity() {
-        float density = getResources().getDisplayMetrics().density;
-
-        if (density == 0.75f)
-        {
-            Toast.makeText(context, "LDPI", Toast.LENGTH_SHORT).show();
-            // LDPI
-        }
-        else if (density >= 1.0f && density < 1.5f)
-        {
-            Toast.makeText(context, "mDPI", Toast.LENGTH_SHORT).show();
-            // MDPI
-        }
-        else if (density == 1.5f)
-        {
-            Toast.makeText(context, "hDPI", Toast.LENGTH_SHORT).show();
-            // HDPI
-        }
-        else if (density > 1.5f && density <= 2.0f)
-        {
-            Toast.makeText(context, "xDPI", Toast.LENGTH_SHORT).show();
-            // XHDPI
-        }
-        else if (density > 2.0f && density <= 3.0f)
-        {
-            Toast.makeText(context, "xxDPI", Toast.LENGTH_SHORT).show();
-            // XXHDPI
-        }
-        else
-        {
-            Toast.makeText(context, "xxxDPI", Toast.LENGTH_SHORT).show();
-            // XXXHDPI
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-       // animationDrawable.start();
+        // animationDrawable.start();
     }
 
     public void setMusicList(){
@@ -131,38 +109,38 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
 
     public void setAlbumSongsList(){
 //        getLoaderManager().initLoader(2,null,this);
-       try{
-        contentResolver = context.getContentResolver();
-        List<SongsPojo> songs = new ArrayList<>();
-        Cursor cursor= contentResolver.query(albumsUri,null,null,null,null);
-        if (cursor!=null && cursor.getCount() > 0){
-            while (cursor.moveToNext()){
-                AlbumPojo albumPojo = new AlbumPojo();
-                songs.clear();
-//                getLoaderManager().initLoader(3,null,SplashActivity.this);
-                Cursor cursorForMusic= contentResolver.query(musicUri,null,musicSelectionArgs,null,null);
-                SongsPojo songsOfAlbums = new SongsPojo();
-                if (cursorForMusic != null && cursorForMusic.getCount() > 0) {
-                    while (cursorForMusic.moveToNext()) {
-                        setSongList(cursorForMusic, songsOfAlbums);
+        try{
+            contentResolver = context.getContentResolver();
+            Cursor cursor= contentResolver.query(albumsUri,null,null,null,null);
+            List<SongsPojo> songs = new ArrayList<>();
+            if (cursor!=null && cursor.getCount() > 0){
+                while (cursor.moveToNext()){
+                    AlbumPojo albumPojo = new AlbumPojo();
+                    songs.clear();
+                    albumPojo.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID)));
+                    albumPojo.setAlbumName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM)));
+                    albumPojo.setArtist(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST)));
+                    albumPojo.setAlbumArtUri(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART)));
+                    albumPojo.setNumberOfSongs(Integer.parseInt(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.NUMBER_OF_SONGS))));
+                    Cursor cursorForMusic= contentResolver.query(musicUri,null,albumMusicselectionArgs, new String[]{albumPojo.getId()},null);
+                    if (cursorForMusic != null && cursorForMusic.getCount() > 0) {
+                        while (cursorForMusic.moveToNext()) {
+                            SongsPojo songsOfAlbums = new SongsPojo();
+                            setSongList(cursorForMusic, songsOfAlbums);
+                            songs.add(songsOfAlbums);
+                        }
                     }
-                    songs.add(songsOfAlbums);
+                    albumPojo.setAlbumSongsList(songs);
+                    MusicPOJO.getInstance().addAlbum(albumPojo);
                 }
-                albumPojo.setAlbumSongsList(songs);
-                albumPojo.setId(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums._ID)));
-                albumPojo.setAlbumName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM)));
-                albumPojo.setArtist(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST)));
-                albumPojo.setAlbumArtUri(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART)));
-                albumPojo.setNumberOfSongs(Integer.parseInt(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.NUMBER_OF_SONGS))));
-                MusicPOJO.getInstance().addAlbum(albumPojo);
-                cursorForMusic.close();
             }
+            cursor.close();
+            isAlbumLoaded = true;
+            splashHandler.post(openMainActivity);
         }
-        cursor.close();
-       }
-       catch (Exception e) {
-           e.printStackTrace();
-       }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -202,11 +180,11 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                         }
                     }
                 }
+                isSongListLoaded = true;
+                splashHandler.post(openMainActivity);
 //                Collections.sort(MusicPOJO.getInstance().getSongsList(),new MusicListComparator());
                 //// TODO: 03-03-2017 change this logic
-                Intent intent = new Intent(this,MainActivity.class);
-                startActivity(intent);
-                finish();
+
                 break;
             case 2:
                 break;

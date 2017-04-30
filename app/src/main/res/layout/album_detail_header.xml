@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:layout_height="@dimen/app_setting_row_h"
+<LinearLayout android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" >
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvNameofSong"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/d20"
+        android:text="Name of Song"
+        android:layout_marginLeft="@dimen/d10"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_marginTop="@dimen/d10"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
     <RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/llShuffle"
-        android:layout_height="@dimen/app_setting_row_h"
+        android:layout_height="100dp"
+        android:layout_marginLeft="@dimen/d10"
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:orientation="horizontal">
@@ -13,6 +29,7 @@
             android:layout_width="@dimen/app_setting_row_h"
             android:layout_height="@dimen/app_setting_row_h"
             android:padding="10dp"
+            android:layout_centerVertical="true"
             android:id="@+id/imgrandom"
             app:srcCompat="@drawable/guitar"/>
         <LinearLayout
@@ -24,16 +41,18 @@
             android:orientation="vertical"
             android:layout_marginTop="@dimen/d3">
             <TextView
+                android:id="@+id/tvartistName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="asdadadadasdada"
                 android:textSize="@dimen/d16"
                 android:textColor="@color/colorPrimaryDark"/>
             <TextView
+                android:id="@+id/tvnumberOfSongs"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="asdadasadsasda"
+                android:layout_marginTop="@dimen/d3"
                 android:textSize="@dimen/d13"/>
         </LinearLayout>
     </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

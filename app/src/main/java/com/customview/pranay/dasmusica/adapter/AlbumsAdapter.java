@@ -1,6 +1,7 @@
 package com.customview.pranay.dasmusica.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.customview.pranay.dasmusica.AlbumActivity;
 import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.model.AlbumPojo;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
@@ -41,12 +43,20 @@ public class AlbumsAdapter extends RecyclerView.Adapter<AlbumsAdapter.AlbumViewH
     }
 
     @Override
-    public void onBindViewHolder(AlbumViewHolder holder, int position) {
+    public void onBindViewHolder(AlbumViewHolder holder, final int position) {
         if (holder != null && albumsList.size() > 0){
             AlbumPojo album = albumsList.get(position);
             holder.tvAlbums.setText(album.getAlbumName());
             holder.tvArtist.setText(album.getArtist());
             getAlbumArtWithoutLibrary(album.getAlbumArtUri(), holder.ivAlbumArt);
+            holder.cvAlbums.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, AlbumActivity.class);
+                    intent.putExtra("POSITION",position);
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 

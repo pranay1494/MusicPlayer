@@ -17,6 +17,7 @@ public class AlbumPojo {
     private String albumName;
     private String albumArtUri;
     private Long albumID;
+    private List<SongsPojo> albumSongsList = new ArrayList<>();
 
     public Long getAlbumID() {
         return albumID;
@@ -33,8 +34,6 @@ public class AlbumPojo {
     public void setAlbumArtUri(String albumArtUri) {
         this.albumArtUri = albumArtUri;
     }
-
-    private List<SongsPojo> albumSongsList = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -73,6 +72,8 @@ public class AlbumPojo {
     }
 
     public void setAlbumSongsList(List<SongsPojo> albumSongsList) {
-        this.albumSongsList = albumSongsList;
+        for (SongsPojo song : albumSongsList) {
+            this.albumSongsList.add(song);
+        }
     }
 }
