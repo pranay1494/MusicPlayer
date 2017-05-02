@@ -1,5 +1,7 @@
 package com.customview.pranay.dasmusica.service;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -11,10 +13,13 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
+import com.customview.pranay.dasmusica.MainActivity;
+import com.customview.pranay.dasmusica.R;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.utils.SeekbarTime;
 
@@ -35,6 +40,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private boolean isRepeat;
     private MusicPOJO music;
     private Handler mhandler;
+    private Handler mhandlerForAlbum;
     private boolean nextClicked;
     private boolean previousClicked;
     private boolean vpPrevious;
@@ -47,6 +53,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         player = new MediaPlayer();
         music = MusicPOJO.getInstance();
         initMusicPlayer();
+        Intent notificationIntent = new Intent(this, MainActivity.class);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                notificationIntent, 0);
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("My Awesome App")
+                .setContentText("Doing some work...")
+                .setContentIntent(pendingIntent).build();
+
+        startForeground(1337, notification);
     }
 
     @Nullable
@@ -68,9 +86,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     private void sendNewSongInfoToActivity() {
         Message message = Message.obtain();
+        Message message2 = Message.obtain();
         message.arg2 = SONG_CHANGED;
-        mhandler.sendMessageDelayed(
-                message,200);
+        message2.arg2 = SONG_CHANGED;
+        if (mhandler!=null) {
+            mhandler.sendMessageDelayed(message2, 200);
+        }
+        if (mhandlerForAlbum!=null) {
+            mhandlerForAlbum.sendMessageDelayed(message,200);
+        }
     }
 
     @Override
@@ -108,6 +132,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         isRepeat = repeat;
     }
 
+    public void setHandlerForAlbum(Handler handler) {
+        mhandlerForAlbum = handler;
+    }
+
     public class MyBinder extends Binder{
         public MusicService getService(){
             return MusicService.this;
@@ -122,8 +150,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
     @Override
     public boolean onUnbind(Intent intent){
-        player.stop();
-        player.release();
+        /*player.stop();
+        player.release();*/
         return false;
     }
 
@@ -159,7 +187,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                         Message msg = Message.obtain();
                         Bundle bundle = getSeekBarData();
                         msg.setData(bundle);
-                        mhandler.sendMessage(msg);
+                        if (mhandlerForAlbum!=null)
+                            mhandlerForAlbum.sendMessage(msg);
+                        else{
+                            mhandler.sendMessage(msg);
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -188,7 +220,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public boolean isPlaying(){
-        return player.isPlaying();
+        if (player!=null)
+            return player.isPlaying();
+        else
+            return false;
     }
 
     public void playNext(boolean clicked) {
@@ -243,5 +278,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void nextSong(){
         player.stop();
         player.reset();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //player.release();
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
     }
 }

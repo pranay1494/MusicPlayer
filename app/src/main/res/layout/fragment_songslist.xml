@@ -4,6 +4,12 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/ivListNotFound"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"/>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvSongsList"
         android:layout_marginTop="@dimen/d10"
@@ -20,4 +26,5 @@
         app:fastscroll__handleColor="#8f93d1"
         app:fastscroll__bubbleColor="#5e64ce"
         android:layout_alignParentRight="true"/>
+
 </RelativeLayout>

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.customview.pranay.dasmusica.R;
@@ -25,11 +26,13 @@ public class AlbumDetailsAdapter extends RecyclerView.Adapter {
     private int modelPosition;
     private ArrayList<SongsPojo> songs;
     private MusicPOJO music = MusicPOJO.getInstance();
+    private AlbumSongSelected songSelected;
 
-    public AlbumDetailsAdapter(Context context, ArrayList<SongsPojo> songs,int pos) {
+    public AlbumDetailsAdapter(Context context, ArrayList<SongsPojo> songs,int pos,AlbumSongSelected songSelected) {
         this.songs = songs;
         this.context = context;
         modelPosition = pos;
+        this.songSelected = songSelected;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class AlbumDetailsAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         if (holder.getItemViewType() == TYPE_HEADER_ALBUMS){
             AlbumDetailsHeaderVH headerVH = (AlbumDetailsHeaderVH) holder;
             headerVH.tvNameofSong.setText(music.getAlbums().get(modelPosition).getAlbumName());
@@ -56,8 +59,16 @@ public class AlbumDetailsAdapter extends RecyclerView.Adapter {
         }else {
             AlbumSongsVH songsVH = (AlbumSongsVH) holder;
             songsVH.tvSno.setText(""+position);
-            songsVH.songTitle.setText(songs.get(position-1).getTitle());
-            songsVH.songArtist.setText(songs.get(position-1).getArtist());
+            if (songs!=null && songs.size() >= position-1) {
+                songsVH.songTitle.setText(songs.get(position - 1).getTitle());
+                songsVH.songArtist.setText(songs.get(position - 1).getArtist());
+                songsVH.rlsongs.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        songSelected.songSelected(position-1);
+                    }
+                });
+            }
         }
     }
 
@@ -77,11 +88,13 @@ public class AlbumDetailsAdapter extends RecyclerView.Adapter {
         TextView tvSno;
         TextView songTitle;
         TextView songArtist;
+        private RelativeLayout rlsongs;
         public AlbumSongsVH(View itemView) {
             super(itemView);
             tvSno = (TextView) itemView.findViewById(R.id.tvSno);
             songTitle = (TextView) itemView.findViewById(R.id.songTitle);
             songArtist = (TextView) itemView.findViewById(R.id.songArtist);
+            rlsongs = (RelativeLayout) itemView.findViewById(R.id.rlsongs);
         }
     }
     public class AlbumDetailsHeaderVH extends RecyclerView.ViewHolder{
@@ -94,5 +107,9 @@ public class AlbumDetailsAdapter extends RecyclerView.Adapter {
             tvnumberOfSongs = (TextView) itemView.findViewById(R.id.tvnumberOfSongs);
             tvartistName = (TextView) itemView.findViewById(R.id.tvartistName);
         }
+    }
+
+    public interface AlbumSongSelected{
+        void songSelected(int position);
     }
 }

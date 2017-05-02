@@ -39,7 +39,7 @@
             android:layout_weight="6"
             android:gravity="left"
             android:maxLines="1"
-            android:ellipsize="marquee"
+            android:ellipsize="none"
             android:singleLine="true"
             android:text="The Awesome Sliding Up Panel"
             android:textSize="@dimen/d20" />

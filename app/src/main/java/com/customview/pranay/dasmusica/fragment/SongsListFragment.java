@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.customview.pranay.dasmusica.MainActivity;
@@ -32,6 +33,7 @@ public class SongsListFragment extends Fragment {
     private SongListUpdated songListUpdated;
     private SongsListAdapter adapter;
     private MusicPOJO music;
+    ImageView ivListNotFound;
     private LinearLayoutManager layoutManager;
 
     @Override
@@ -51,7 +53,15 @@ public class SongsListFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         recyclerView = (RecyclerView) view.findViewById(R.id.rvSongsList);
         fastScroller = (FastScroller) view.findViewById(R.id.fastscroll);
+        ivListNotFound = (ImageView) view.findViewById(R.id.ivListNotFound);
+
         music = MusicPOJO.getInstance();
+        if (music.getSongsList()!=null && music.getSongsList().size()>0){
+            ivListNotFound.setVisibility(View.GONE);
+        }else{
+            ivListNotFound.setVisibility(View.VISIBLE);
+            ivListNotFound.setImageResource(R.drawable.listnotfound);
+        }
 
         adapter = new SongsListAdapter(context, recyclerView,new SongsListAdapter.SongClicked() {
             @Override

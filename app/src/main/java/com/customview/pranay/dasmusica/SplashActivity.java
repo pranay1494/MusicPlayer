@@ -82,7 +82,6 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
 
         animation = AnimationUtils.loadAnimation(this,R.anim.splashtext);
         splashText.startAnimation(animation);
-        splashHandler.postDelayed(openMainActivity,100);
         /*animationDrawable = (AnimationDrawable) mainLayout.getBackground();
         animationDrawable.setEnterFadeDuration(5000);
         animationDrawable.setExitFadeDuration(2000);*/
@@ -136,6 +135,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
             }
             cursor.close();
             isAlbumLoaded = true;
+            splashHandler.removeCallbacks(openMainActivity);
             splashHandler.post(openMainActivity);
         }
         catch (Exception e) {
@@ -181,6 +181,7 @@ public class SplashActivity extends AppCompatActivity implements LoaderManager.L
                     }
                 }
                 isSongListLoaded = true;
+                splashHandler.removeCallbacks(openMainActivity);
                 splashHandler.post(openMainActivity);
 //                Collections.sort(MusicPOJO.getInstance().getSongsList(),new MusicListComparator());
                 //// TODO: 03-03-2017 change this logic

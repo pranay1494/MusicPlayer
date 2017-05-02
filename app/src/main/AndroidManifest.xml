@@ -25,6 +25,7 @@
             android:screenOrientation="portrait"/>
         <service android:name=".service.MusicService"
             android:exported="false"
+            android:stopWithTask="false"
             android:enabled="true"/>
     </application>
 

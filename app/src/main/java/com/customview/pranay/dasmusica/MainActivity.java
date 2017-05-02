@@ -92,8 +92,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
     private ImageView ivNextSong;
     private ImageView ivRepeatSelected;
     private ImageView ivRepeat;
-    private ImageView ivNext;
     private ImageView ivCross;
+    private ImageView ivNext;
     private ImageView ivPrevious;
     private ImageView ivplayPause;
     private ImageView ivShuffleSelected;
@@ -143,7 +143,10 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                         }
                     }
                 }
-                vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+                if (mServiceBound && musicService.isPlaying()) {
+                    playerViewPager.notifyDataSetChanged();
+                    vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+                }
             }
             /*if (msg != null) {
                 Bundle bundle = msg.getData();
@@ -189,6 +192,20 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask, 100);
             setControlBtnsWhilecreating();
+            if (mServiceBound && musicService!=null && musicService.isPlaying()) {
+                setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong, ivEq);
+                tvMusicName.setText(musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle());
+                playerViewPager.notifyDataSetChanged();
+                vpSongPlaying.setAdapter(playerViewPager);
+                vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+                handler.removeCallbacks(mUpdateTimeTask);
+                handler.postDelayed(mUpdateTimeTask,100);
+                musicService.setHandler(handler);
+                if (viewPagerAdapter != null) {
+                    Fragment fragment = viewPagerAdapter.getFragment(0);
+                    ((SongsListFragment) fragment).refreshList();
+                }
+            }
         }
         @Override
         public void onServiceDisconnected(ComponentName name) {
@@ -452,10 +469,10 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         ivThisSong = (ImageView) findViewById(R.id.ivThisSong);
         ivNextSong = (ImageView) findViewById(R.id.ivnextSong);
         ivplayPause = (ImageView) findViewById(R.id.ivplayPause);
-        ivPrevious = (ImageView) findViewById(R.id.ivPrevious);
         ivRepeatSelected = (ImageView) findViewById(R.id.ivRepeatSelected);
         ivRepeat = (ImageView) findViewById(R.id.ivRepeat);
         ivCross = (ImageView) findViewById(R.id.ivCross);
+        ivPrevious = (ImageView) findViewById(R.id.ivPrevious);
         ivNext = (ImageView) findViewById(R.id.ivNext);
         ivShuffle = (ImageView) findViewById(R.id.ivShuffle);
         ivShuffleSelected = (ImageView) findViewById(R.id.ivShuffleSelected);
@@ -650,6 +667,18 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         super.onDestroy();
         if (mServiceBound && serviceConnection != null) {
             unbindService(serviceConnection);
+            //stopService(playerIntent);
+            musicService.setHandler(null);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mServiceBound && serviceConnection != null) {
+            // unbindService(serviceConnection);
+            //stopService(playerIntent);
+            handler.removeCallbacks(mUpdateTimeTask);
         }
     }
 
@@ -667,6 +696,25 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             ivRepeatSelected.setVisibility(View.GONE);
             ivShuffle.setVisibility(View.VISIBLE);
             ivShuffleSelected.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mServiceBound && musicService!=null && musicService.isPlaying()) {
+            setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong, ivEq);
+            tvMusicName.setText(musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle());
+            playerViewPager.notifyDataSetChanged();
+            vpSongPlaying.setAdapter(playerViewPager);
+            vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            handler.removeCallbacks(mUpdateTimeTask);
+            handler.postDelayed(mUpdateTimeTask,100);
+            musicService.setHandler(handler);
+            if (viewPagerAdapter != null) {
+                Fragment fragment = viewPagerAdapter.getFragment(0);
+                ((SongsListFragment) fragment).refreshList();
+            }
         }
     }
 
