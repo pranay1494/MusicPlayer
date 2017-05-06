@@ -72,7 +72,10 @@ public class SongsListFragment extends Fragment {
                     recyclerView.invalidate();
                 }else{
                     if (shuffleClicked){
-                        ArrayList<SongsPojo> list = new ArrayList<>(MusicPOJO.getInstance().getSongsList());
+                        ArrayList<SongsPojo> list = new ArrayList<>();
+                        for (SongsPojo song:MusicPOJO.getInstance().getSongsList()) {
+                            list.add(song);
+                        }
                         Collections.shuffle(list);
                         MusicPOJO.getInstance().clearNowPlayingList();
                         MusicPOJO.getInstance().setNowPlayingList(list);
@@ -104,8 +107,16 @@ public class SongsListFragment extends Fragment {
     }
 
     public void scroll(){
-        Toast.makeText(context, "worked", Toast.LENGTH_SHORT).show();
-        recyclerView.smoothScrollToPosition(music.getIndexOfCurrentSong());
+        int index = 0;
+        if (music.getNowPlayingList()!=null) {
+            for (int i = 0; i < music.getNowPlayingList().size(); i++) {
+                if (music.getNowPlayingList().get(i).isPalying()){
+                    index = i;
+                    break;
+                }
+            }
+        }
+        recyclerView.scrollToPosition(index);
     }
 
     public void refreshList(){

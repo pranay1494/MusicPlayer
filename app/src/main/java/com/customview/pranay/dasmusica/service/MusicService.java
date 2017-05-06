@@ -14,6 +14,8 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -44,6 +46,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private boolean nextClicked;
     private boolean previousClicked;
     private boolean vpPrevious;
+    private PhoneStateListener phoneStateListener;
+    boolean isPausedDueToCall;
+    private TelephonyManager telephonyManager;
 
     public MusicService() {}
 
@@ -284,10 +289,45 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onDestroy() {
         super.onDestroy();
         //player.release();
+        if (phoneStateListener != null) {
+            telephonyManager.listen(phoneStateListener,
+                    PhoneStateListener.LISTEN_NONE);
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
+        telephonyManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        phoneStateListener = new PhoneStateListener(){
+            @Override
+            public void onCallStateChanged(int state, String incomingNumber) {
+                switch (state){
+                    case TelephonyManager.CALL_STATE_OFFHOOK:
+                    case TelephonyManager.CALL_STATE_RINGING:
+                        if (player != null && isPlaying()) {
+                            pause();
+                            isPausedDueToCall = true;
+                        }
+
+                        break;
+                    case TelephonyManager.CALL_STATE_IDLE:
+                        // Phone idle. Start playing.
+                        if (player != null) {
+                            if (isPausedDueToCall) {
+                                isPausedDueToCall = false;
+                                resume();
+                            }
+                            Message message = Message.obtain();
+                            message.arg1 = 12345;
+                            mhandler.sendMessageDelayed(message,200);
+                        }
+                        break;
+                }
+            }
+        };
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
+
         return START_STICKY;
     }
 }

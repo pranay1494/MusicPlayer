@@ -121,6 +121,10 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
             }
             setControlBtnsWhilecreating();
+            if (msg.arg1 == 12345){
+                handler.removeCallbacks(mUpdateTimeTask);
+                handler.postDelayed(mUpdateTimeTask,200);
+            }
             if (msg.arg2 == MusicService.SONG_CHANGED) {
                 seekBar.setEnabled(true);
                 seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
@@ -696,6 +700,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             ivRepeatSelected.setVisibility(View.GONE);
             ivShuffle.setVisibility(View.VISIBLE);
             ivShuffleSelected.setVisibility(View.GONE);
+            setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong, ivEq);
         }
     }
 
