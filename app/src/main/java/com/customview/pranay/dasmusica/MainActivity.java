@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         }
     };
     private PageChangeListener pageChangeListener;
+    private MediaMetadataRetriever mmr;
 
     @Override
     public void songToPlay(int position) {
@@ -501,6 +502,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         ivNext.setOnClickListener(this);
         ivShuffle.setOnClickListener(this);
         seekBar.setOnSeekBarChangeListener(this);
+        mmr = new MediaMetadataRetriever();
 
         playerViewPager = new PlayerViewPager(MainActivity.this, getSupportFragmentManager());
         setupTabs();
@@ -725,7 +727,6 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
 
     private void setBackgroundRelativeToCurrentSong(TextView thisSong, TextView nextSong, final ImageView ivNext, TextView tvNextSongToolBar, final View... view) {
         MusicPOJO musicPOJO = MusicPOJO.getInstance();
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         SongsPojo song = musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong());
         if (thisSong != null) {
             thisSong.setText(song.getTitle());
