@@ -293,6 +293,11 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             player.reset();
             player.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getPath());
             player.prepareAsync();
+            try{
+                startForeground(NOTIFICATION_ID,notificationBuilder.build());
+            }catch(Exception e){
+                e.printStackTrace();
+            }
         } catch (Exception e) {
             Toast.makeText(this, "Sorry This Song Cannot Be Played !!", Toast.LENGTH_SHORT).show();
             e.printStackTrace();
@@ -438,6 +443,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                             }
                             Message message = Message.obtain();
                             message.arg1 = 12345;
+                            if (mhandler!=null)
                             mhandler.sendMessageDelayed(message,200);
                         }
                         break;
@@ -458,7 +464,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         PendingIntent play_pauseAction = null;
         Intent notificationIntent = new Intent(this, MainActivity.class);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 notificationIntent, 0);
         mediaSession.setSessionActivity(pendingIntent);
 
@@ -487,25 +493,30 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         GildeUtils.getBitmapFromGlide(this, data, new GlideInterface() {
             @Override
             public void getBitmap(Bitmap bitmap) {
-                notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-                        .setShowWhen(false)
-                        .setStyle(new NotificationCompat.MediaStyle()
-                                .setMediaSession(mediaSession.getSessionToken())
-                                .setShowActionsInCompactView(0, 1, 2))
-                        .setColor(getResources().getColor(R.color.colorPrimaryDark))
-                        .setLargeIcon(bitmap)
-                        .setSmallIcon(android.R.drawable.stat_sys_headset)
-                        .setContentText(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getArtist())
-                        .setContentTitle(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getAlbum())
-                        .setContentInfo(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getTitle())
-                        .addAction(R.drawable.ic_skip_previous_black_24dp, "previous", playbackAction(3))
-                        .addAction(finalNotificationAction, "pause", finalPlay_pauseAction)
-                        .addAction(R.drawable.ic_skip_next_black_24dp, "next", playbackAction(2));
+                try {
+                    notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
+                            .setShowWhen(false)
+                            .setStyle(new NotificationCompat.MediaStyle()
+                                    .setMediaSession(mediaSession.getSessionToken())
+                                    .setShowActionsInCompactView(0, 1, 2))
+                            .setColor(getResources().getColor(R.color.colorPrimaryDark))
+                            .setLargeIcon(bitmap)
+                            .setContentIntent(pendingIntent)
+                            .setSmallIcon(android.R.drawable.stat_sys_headset)
+                            .setContentText(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getArtist())
+                            .setContentTitle(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getTitle())
+                            .setContentInfo(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getTitle())
+                            .addAction(R.drawable.ic_skip_previous_black_24dp, "previous", playbackAction(3))
+                            .addAction(finalNotificationAction, "pause", finalPlay_pauseAction)
+                            .addAction(R.drawable.ic_skip_next_black_24dp, "next", playbackAction(2));
 
-                ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notificationBuilder.build());            }
-
+                    ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notificationBuilder.build());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
         });
-        this.startForeground(NOTIFICATION_ID,notificationBuilder.build());
+        startForeground(NOTIFICATION_ID,notificationBuilder.build());
     }
 
     private void removeNotification() {
@@ -543,10 +554,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         String actionString = playbackAction.getAction();
         if (actionString.equalsIgnoreCase(ACTION_PLAY)) {
             transportControls.play();
-            resume();
+            if (player!=null)
+                player.start();
         } else if (actionString.equalsIgnoreCase(ACTION_PAUSE)) {
             transportControls.pause();
-            pause();
+            if (player!=null)
+            player.pause();
+            notificationBuilder.setOngoing(false);
         } else if (actionString.equalsIgnoreCase(ACTION_NEXT)) {
             transportControls.skipToNext();
             playNext(false);
@@ -594,5 +608,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     private boolean removeAudioFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == audioManager.abandonAudioFocus(this);
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
     }
 }

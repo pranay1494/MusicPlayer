@@ -447,6 +447,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             playlistSheet.show();*/
             Dialog dialog = new Dialog(this);
             dialog.setContentView(R.layout.playlist_dialog);
+            dialog.setTitle("Please select");
             dialog.show();
         }
     }
@@ -706,6 +707,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         if (mServiceBound) {
             //setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar,tvNextSongAppbar,ivNextSong,appbar,ivThisSong);
             musicService.playSong();
+            vpSongPlaying.setAdapter(playerViewPager);
             playerViewPager.notifyDataSetChanged();
             seekBar.setEnabled(true);
             seekBar.setThumb(ContextCompat.getDrawable(MainActivity.this,R.drawable.seekbarthumb_24dp));
@@ -716,6 +718,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             ivRepeatSelected.setVisibility(View.GONE);
             ivShuffle.setVisibility(View.VISIBLE);
             ivShuffleSelected.setVisibility(View.GONE);
+            if (musicObject.getNowPlayingList().size() > musicObject.getIndexOfCurrentSong())
+            tvMusicName.setText(musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).getTitle());
             setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong, ivEq);
         }
     }

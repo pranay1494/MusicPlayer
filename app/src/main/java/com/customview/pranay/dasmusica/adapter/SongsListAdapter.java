@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Created by Pranay on 03-03-2017.
  */
 
-public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements SectionTitleProvider {
+public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     protected static final int TYPE_HEADER = 0;
     protected static final int TYPE_CELL = 1;
@@ -155,14 +155,14 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return 0;
     }
 
-    @Override
+    /*@Override
     public String getSectionTitle(int position) {
         String sectionedText = "";
         if (position!=0 &&MusicPOJO.getInstance().getSongsList()!=null &&MusicPOJO.getInstance().getSongsList().size()>0 && !TextUtils.isEmpty(MusicPOJO.getInstance().getSongsList().get(position-1).getTitle())) {
             sectionedText = MusicPOJO.getInstance().getSongsList().get(position-1).getTitle().substring(0, 1);
         }
         return sectionedText;
-    }
+    }*/
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         ImageView albumArt;
