@@ -89,6 +89,7 @@ public class SongsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 popupInterface.popupItemClicked(2);
                             }else if (item.getTitle().equals("Add to playlist")){
                                 Toast.makeText(context, "Add to playlist clicked", Toast.LENGTH_SHORT).show();
+                                popupInterface.popupItemClicked(3);
                             }else if (item.getTitle().equals("Information")){
                                 Toast.makeText(context, "Information clicked", Toast.LENGTH_SHORT).show();
                             }

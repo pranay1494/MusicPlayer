@@ -1,10 +1,12 @@
 package com.customview.pranay.dasmusica;
 
+import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -14,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -61,6 +64,7 @@ import com.customview.pranay.dasmusica.utils.SeekbarTime;
 import com.customview.pranay.dasmusica.utils.Utilities;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -104,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
     private ViewPagerAdapter viewPagerAdapter;
     private ViewPager vpSongPlaying;
     private PlayerViewPager playerViewPager;
+    private BottomSheetDialog playlistSheet;
 
     static {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -432,10 +437,18 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 text ="Song added to queue";
             vpSongPlaying.setAdapter(playerViewPager);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
+            Snackbar snackbar = Snackbar.make((CoordinatorLayout)findViewById(R.id.rlMain), text, Snackbar.LENGTH_SHORT);
+            snackbar.show();
+        }else if (position == 3){
+            //add to playlist
+            /*View view = getLayoutInflater().inflate(R.layout.playlist_dialog,null);
+            playlistSheet.setContentView(view);
+            playlistSheet.show();*/
+            Dialog dialog = new Dialog(this);
+            dialog.setContentView(R.layout.playlist_dialog);
+            dialog.show();
         }
-        Snackbar snackbar = Snackbar.make((CoordinatorLayout)findViewById(R.id.rlMain), text, Snackbar.LENGTH_SHORT);
-        snackbar.show();
-        setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
     }
 
     public enum CollapsingToolbarLayoutState {
@@ -482,6 +495,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         ivShuffle = (ImageView) findViewById(R.id.ivShuffle);
         ivShuffleSelected = (ImageView) findViewById(R.id.ivShuffleSelected);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
+        playlistSheet = new BottomSheetDialog(this);
         seekBarController = new SeekBarController();
         seekBar.setMax(100);
 
@@ -747,6 +761,12 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             data = mmr.getEmbeddedPicture();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+        if (data == null){
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.nowplaying);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            data = stream.toByteArray();
         }
 
         tvSongPlayingAppbar.setText(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getTitle());

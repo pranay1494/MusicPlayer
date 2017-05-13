@@ -37,6 +37,8 @@ import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.utils.GildeUtils;
 import com.customview.pranay.dasmusica.utils.SeekbarTime;
 
+import java.io.ByteArrayOutputStream;
+
 /**
  * Created by Pranay on 11/04/2017.
  */
@@ -87,6 +89,33 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             @Override
             public void onPlay() {
                 super.onPlay();
+                buildNotification(PlaybackStatus.PLAYING);
+            }
+
+            @Override
+            public void onPause() {
+                super.onPause();
+                buildNotification(PlaybackStatus.PAUSED);
+            }
+
+            @Override
+            public void onSkipToNext() {
+                super.onSkipToNext();
+                buildNotification(PlaybackStatus.PLAYING);
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                super.onSkipToPrevious();
+                buildNotification(PlaybackStatus.PLAYING);
+            }
+
+            @Override
+            public void onStop() {
+                super.onStop();
+                removeNotification();
+                stopForeground(true);
+                stopSelf();
             }
         });
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -116,10 +145,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         message.arg2 = SONG_CHANGED;
         message2.arg2 = SONG_CHANGED;
         if (mhandler!=null) {
-            mhandler.sendMessageDelayed(message2, 200);
+            mhandler.sendMessageDelayed(message2, 300);
         }
         if (mhandlerForAlbum!=null) {
-            mhandlerForAlbum.sendMessageDelayed(message,200);
+            mhandlerForAlbum.sendMessageDelayed(message,300);
         }
     }
 
@@ -206,6 +235,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void pause() {
         player.pause();
+        buildNotification(PlaybackStatus.PAUSED);
     }
 
     public long getDuration() {
@@ -250,6 +280,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         try {
             if (player != null) {
                 player.start();
+                buildNotification(PlaybackStatus.PLAYING);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -423,7 +454,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     private void buildNotification(PlaybackStatus playbackStatus) {
 
-        int notificationAction = android.R.drawable.ic_media_pause;//needs to be initialized
+        int notificationAction = R.drawable.ic_pause_black_24dp;//needs to be initialized
         PendingIntent play_pauseAction = null;
         Intent notificationIntent = new Intent(this, MainActivity.class);
 
@@ -432,10 +463,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mediaSession.setSessionActivity(pendingIntent);
 
         if (playbackStatus == PlaybackStatus.PLAYING) {
-            notificationAction = android.R.drawable.ic_media_pause;
+            notificationAction = R.drawable.ic_pause_black_24dp;
             play_pauseAction = playbackAction(1);
         } else if (playbackStatus == PlaybackStatus.PAUSED) {
-            notificationAction = android.R.drawable.ic_media_play;
+            notificationAction = R.drawable.ic_play_arrow_black_24dp;
             play_pauseAction = playbackAction(0);
         }
         byte[] data = null;
@@ -447,6 +478,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
         final int finalNotificationAction = notificationAction;
         final PendingIntent finalPlay_pauseAction = play_pauseAction;
+        if (data == null){
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.nowplaying);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            data = stream.toByteArray();
+        }
         GildeUtils.getBitmapFromGlide(this, data, new GlideInterface() {
             @Override
             public void getBitmap(Bitmap bitmap) {
@@ -455,15 +492,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                         .setStyle(new NotificationCompat.MediaStyle()
                                 .setMediaSession(mediaSession.getSessionToken())
                                 .setShowActionsInCompactView(0, 1, 2))
-                        .setColor(getResources().getColor(R.color.colorPrimary))
+                        .setColor(getResources().getColor(R.color.colorPrimaryDark))
                         .setLargeIcon(bitmap)
                         .setSmallIcon(android.R.drawable.stat_sys_headset)
                         .setContentText(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getArtist())
                         .setContentTitle(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getAlbum())
                         .setContentInfo(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getTitle())
-                        .addAction(android.R.drawable.ic_media_previous, "previous", playbackAction(3))
+                        .addAction(R.drawable.ic_skip_previous_black_24dp, "previous", playbackAction(3))
                         .addAction(finalNotificationAction, "pause", finalPlay_pauseAction)
-                        .addAction(android.R.drawable.ic_media_next, "next", playbackAction(2));
+                        .addAction(R.drawable.ic_skip_next_black_24dp, "next", playbackAction(2));
 
                 ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notificationBuilder.build());            }
 
@@ -506,14 +543,21 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         String actionString = playbackAction.getAction();
         if (actionString.equalsIgnoreCase(ACTION_PLAY)) {
             transportControls.play();
+            resume();
         } else if (actionString.equalsIgnoreCase(ACTION_PAUSE)) {
             transportControls.pause();
+            pause();
         } else if (actionString.equalsIgnoreCase(ACTION_NEXT)) {
             transportControls.skipToNext();
+            playNext(false);
         } else if (actionString.equalsIgnoreCase(ACTION_PREVIOUS)) {
             transportControls.skipToPrevious();
+            playPrevious(false);
         } else if (actionString.equalsIgnoreCase(ACTION_STOP)) {
             transportControls.stop();
+            player.stop();
+            player.reset();
+            this.stopForeground(true);
         }
     }
 
