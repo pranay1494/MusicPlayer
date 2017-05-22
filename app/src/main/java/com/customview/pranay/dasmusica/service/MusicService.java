@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -36,8 +37,11 @@ import com.customview.pranay.dasmusica.interfaces.GlideInterface;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
 import com.customview.pranay.dasmusica.utils.GildeUtils;
 import com.customview.pranay.dasmusica.utils.SeekbarTime;
+import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Pranay on 11/04/2017.
@@ -115,6 +119,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 super.onStop();
                 removeNotification();
                 stopForeground(true);
+                Log.d("musicservice", "handleIncomingActions:");
                 stopSelf();
             }
         });
@@ -145,10 +150,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         message.arg2 = SONG_CHANGED;
         message2.arg2 = SONG_CHANGED;
         if (mhandler!=null) {
-            mhandler.sendMessageDelayed(message2, 300);
+            mhandler.sendMessageDelayed(message2, 200);
         }
         if (mhandlerForAlbum!=null) {
-            mhandlerForAlbum.sendMessageDelayed(message,300);
+            mhandlerForAlbum.sendMessageDelayed(message,200);
         }
     }
 
@@ -181,14 +186,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         } catch (Exception e) {
             e.printStackTrace();
         }
+        if (data == null){
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(),R.drawable.nowplaying);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+            data = stream.toByteArray();
+        }
         if (music.getNowPlayingList()!=null && music.getNowPlayingList().size()>music.getIndexOfCurrentSong()) {
 
             GildeUtils.getBitmapFromGlide(this,data , new GlideInterface() {
                 @Override
                 public void getBitmap(Bitmap bitmap) {
-                    if(bitmap==null) {
-                        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.nowplaying);
-                    }
                             mediaSession.setMetadata(new MediaMetadataCompat.Builder()
                             .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,bitmap)
                             .putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON,bitmap)
@@ -197,7 +205,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                             .putString(MediaMetadataCompat.METADATA_KEY_TITLE, music.getNowPlayingList().get(currentIndex).getTitle())
                             .build());
                     PlaybackStateCompat.Builder stateBuilder = new PlaybackStateCompat.Builder();
-                    isLockscreenUpdated = true;
                     stateBuilder.setActiveQueueItemId(music.getNowPlayingList().get(music.getIndexOfCurrentSong()).getId());
 
                     long actions = PlaybackStateCompat.ACTION_PLAY_PAUSE | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SKIP_TO_NEXT | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
@@ -209,7 +216,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
 
             });
-            if (!isLockscreenUpdated){
+            /*if (!isLockscreenUpdated){
                 Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.nowplaying);
 
                 mediaSession.setMetadata(new MediaMetadataCompat.Builder()
@@ -229,7 +236,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 1.0f);
                 mediaSession.setPlaybackState(stateBuilder.build());
             }
-            isLockscreenUpdated = false;
+            isLockscreenUpdated = false;*/
         }
     }
 
@@ -294,7 +301,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             player.setDataSource(musicPOJO.getNowPlayingList().get(musicPOJO.getIndexOfCurrentSong()).getPath());
             player.prepareAsync();
             try{
-                startForeground(NOTIFICATION_ID,notificationBuilder.build());
+                this.startForeground(NOTIFICATION_ID,notificationBuilder.build());
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -511,12 +518,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                             .addAction(R.drawable.ic_skip_next_black_24dp, "next", playbackAction(2));
 
                     ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).notify(NOTIFICATION_ID, notificationBuilder.build());
+                    startForeground(NOTIFICATION_ID,notificationBuilder.build());
                 }catch (Exception e){
                     e.printStackTrace();
                 }
             }
         });
-        startForeground(NOTIFICATION_ID,notificationBuilder.build());
     }
 
     private void removeNotification() {
@@ -554,13 +561,17 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         String actionString = playbackAction.getAction();
         if (actionString.equalsIgnoreCase(ACTION_PLAY)) {
             transportControls.play();
+           // getDataFromSharedPrefs();
             if (player!=null)
                 player.start();
         } else if (actionString.equalsIgnoreCase(ACTION_PAUSE)) {
             transportControls.pause();
             if (player!=null)
             player.pause();
-            notificationBuilder.setOngoing(false);
+            //createSharedprefs();
+            Log.d("musicservice", "handleIncomingActions:");
+         //   stopForeground(true);
+//            notificationBuilder.setOngoing(false);
         } else if (actionString.equalsIgnoreCase(ACTION_NEXT)) {
             transportControls.skipToNext();
             playNext(false);
@@ -572,8 +583,22 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             player.stop();
             player.reset();
             this.stopForeground(true);
+            Log.d("musicservice", "handleIncomingActions:");
         }
     }
+
+    /*private void createSharedprefs() {
+        String model = new Gson().toJson(MusicPOJO.getInstance());
+        SharedPreferences sharedPreferences = getSharedPreferences("MODEL_DURING_PAUSE",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("model",model);
+        editor.apply();
+    }
+    private void getDataFromSharedPrefs(){
+        SharedPreferences sharedPreferences = getSharedPreferences("MODEL_DURING_PAUSE",MODE_PRIVATE);
+        String model = sharedPreferences.getString("model",null);
+        MusicPOJO musicPOJO = new Gson().fromJson(model,MusicPOJO.class);
+    }*/
 
     @Override
     public void onAudioFocusChange(int focusState) {
@@ -592,7 +617,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 if (player.isPlaying()) player.pause();
                 break;
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                if (player.isPlaying()) player.setVolume(0.1f, 0.1f);
+                if (player.isPlaying()) player.setVolume(0.4f, 0.4f);
                 break;
         }
     }
@@ -608,10 +633,5 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     private boolean removeAudioFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == audioManager.abandonAudioFocus(this);
-    }
-
-    @Override
-    public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
     }
 }

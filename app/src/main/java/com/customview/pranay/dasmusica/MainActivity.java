@@ -3,6 +3,7 @@ package com.customview.pranay.dasmusica;
 import android.app.Dialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
@@ -25,19 +26,23 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -55,6 +60,7 @@ import com.customview.pranay.dasmusica.interfaces.PageChangeForViewPager;
 import com.customview.pranay.dasmusica.interfaces.SongListPopupInterface;
 import com.customview.pranay.dasmusica.interfaces.SongSelected;
 import com.customview.pranay.dasmusica.model.MusicPOJO;
+import com.customview.pranay.dasmusica.model.PlaylistPojo;
 import com.customview.pranay.dasmusica.model.SongsPojo;
 import com.customview.pranay.dasmusica.pageradapter.PlayerViewPager;
 import com.customview.pranay.dasmusica.pagetransformers.ZoomOutPageTransformer;
@@ -110,9 +116,6 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
     private PlayerViewPager playerViewPager;
     private BottomSheetDialog playlistSheet;
 
-    static {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    }
 
     private int position =-1;
     /**
@@ -207,6 +210,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 playerViewPager.notifyDataSetChanged();
                 vpSongPlaying.setAdapter(playerViewPager);
                 vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+                vpSongPlaying.setOffscreenPageLimit(2);
                 handler.removeCallbacks(mUpdateTimeTask);
                 handler.postDelayed(mUpdateTimeTask,100);
                 musicService.setHandler(handler);
@@ -223,6 +227,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
     };
     private PageChangeListener pageChangeListener;
     private MediaMetadataRetriever mmr;
+    private LinearLayout llCreateNewPlaylist;
+    private LinearLayout llAddToPlaylist;
 
     @Override
     public void songToPlay(int position) {
@@ -287,6 +293,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).setPalying(true);
                 vpSongPlaying.setAdapter(playerViewPager);
                 vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+                vpSongPlaying.setOffscreenPageLimit(2);
+
             }
 
             ivRepeatSelected.setVisibility(View.VISIBLE);
@@ -302,6 +310,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             musicObject.getNowPlayingList().get(musicObject.getIndexOfCurrentSong()).setPalying(true);
             vpSongPlaying.setAdapter(playerViewPager);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            vpSongPlaying.setOffscreenPageLimit(2);
+
             ivRepeatSelected.setVisibility(View.GONE);
             ivRepeat.setVisibility(View.VISIBLE);
 
@@ -324,6 +334,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 musicObject.getNowPlayingList().get(0).setPalying(true);
                 vpSongPlaying.setAdapter(playerViewPager);
                 vpSongPlaying.setCurrentItem(0);
+                vpSongPlaying.setOffscreenPageLimit(2);
+
             }
             ivShuffle.setVisibility(View.GONE);
             ivShuffleSelected.setVisibility(View.VISIBLE);
@@ -338,6 +350,8 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 musicObject.setIndexOfCurrentSong(index);
                 vpSongPlaying.setAdapter(playerViewPager);
                 vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+                vpSongPlaying.setOffscreenPageLimit(2);
+
             }else{
                 Toast.makeText(this, "Something went wrong!!", Toast.LENGTH_SHORT).show();
             }
@@ -377,9 +391,12 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         if (newState == SlidingUpPanelLayout.PanelState.EXPANDED) {
             ivEq.setVisibility(View.GONE);
             ivCross.setVisibility(View.VISIBLE);
+            if (mSlidingLayoutState!=null)
+            mSlidingLayoutState = SlidingLayoutState.EXPANDED;
         } else if (newState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
             ivEq.setVisibility(View.VISIBLE);
             ivCross.setVisibility(View.GONE);
+            mSlidingLayoutState = SlidingLayoutState.COLLAPSED;
         }else if (newState == SlidingUpPanelLayout.PanelState.DRAGGING) {
             if (!ivEq.isShown()) {
                 ivEq.setVisibility(View.VISIBLE);
@@ -432,33 +449,78 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         String text = "";
         if (position == 1 || position == 2){
             if (position == 1)
-                text = "Selected song wll play next";
+                text = "Selected song will play next";
             else
                 text ="Song added to queue";
             vpSongPlaying.setAdapter(playerViewPager);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            vpSongPlaying.setOffscreenPageLimit(2);
+
             setBackgroundRelativeToCurrentSong(tvSongPlayingAppbar, tvNextSongAppbar, ivNextSong, tvNextSongToolBar, appbar, ivThisSong,ivEq);
             Snackbar snackbar = Snackbar.make((CoordinatorLayout)findViewById(R.id.rlMain), text, Snackbar.LENGTH_SHORT);
             snackbar.show();
         }else if (position == 3){
             //add to playlist
-            /*View view = getLayoutInflater().inflate(R.layout.playlist_dialog,null);
-            playlistSheet.setContentView(view);
-            playlistSheet.show();*/
-            Dialog dialog = new Dialog(this);
-            dialog.setContentView(R.layout.playlist_dialog);
-            dialog.setTitle("Please select");
-            dialog.show();
+            //initPlaylistDialog();
+            View contentView = getLayoutInflater().inflate(R.layout.playlist_dialog, null);
+            playlistSheet.setContentView(contentView);
+            llCreateNewPlaylist = (LinearLayout) contentView.findViewById(R.id.llCreateNewPlaylist);
+            llAddToPlaylist = (LinearLayout) contentView.findViewById(R.id.llAddToPlaylist);
+            llAddToPlaylist.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+            llCreateNewPlaylist.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showNewPlayListDialog();
+                }
+            });
+            playlistSheet.show();
         }
     }
+
+    private void showNewPlayListDialog() {
+        AlertDialog.Builder alert = new AlertDialog.Builder(this,android.R.style.Theme_Material_Light_Dialog);
+        View contentView = getLayoutInflater().inflate(R.layout.layout_create_new_playlist, null);
+        alert.setView(contentView);
+        final EditText edtPlaylistName = (EditText) contentView.findViewById(R.id.edtPlaylistName);
+        alert.setTitle("Creating new playlist");
+        alert.setMessage("Enter Name below");
+        alert.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                if (!TextUtils.isEmpty(edtPlaylistName.getText().toString())){
+                    PlaylistPojo playlistPojo = new PlaylistPojo();
+                    playlistPojo.setName(edtPlaylistName.getText().toString());
+                    musicObject.addPlaylist(playlistPojo);
+                    playlistSheet.dismiss();
+                }
+            }
+        });
+        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                dialog.dismiss();
+            }
+        });
+        AlertDialog b = alert.create();
+        b.show();
+    }
+
 
     public enum CollapsingToolbarLayoutState {
         EXPANDED,
         COLLAPSED,
         INTERNEDTATE
     }
+    public enum SlidingLayoutState {
+        EXPANDED,
+        COLLAPSED,
+    }
 
     private CollapsingToolbarLayoutState mLayoutState = CollapsingToolbarLayoutState.EXPANDED;
+    private SlidingLayoutState mSlidingLayoutState = SlidingLayoutState.COLLAPSED;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -496,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         ivShuffle = (ImageView) findViewById(R.id.ivShuffle);
         ivShuffleSelected = (ImageView) findViewById(R.id.ivShuffleSelected);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBar.setPadding(0,0,0,0);
         playlistSheet = new BottomSheetDialog(this);
         seekBarController = new SeekBarController();
         seekBar.setMax(100);
@@ -607,6 +670,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
         viewPager.setOffscreenPageLimit(2);
         viewPager.setPageTransformer(false, new ZoomOutPageTransformer());
         vpSongPlaying.setAdapter(playerViewPager);
+        vpSongPlaying.setOffscreenPageLimit(2);
     }
 
     private void showAnim() {
@@ -714,6 +778,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask, 100);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            vpSongPlaying.setOffscreenPageLimit(2);
             ivRepeat.setVisibility(View.VISIBLE);
             ivRepeatSelected.setVisibility(View.GONE);
             ivShuffle.setVisibility(View.VISIBLE);
@@ -733,6 +798,7 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
             playerViewPager.notifyDataSetChanged();
             vpSongPlaying.setAdapter(playerViewPager);
             vpSongPlaying.setCurrentItem(musicObject.getIndexOfCurrentSong());
+            vpSongPlaying.setOffscreenPageLimit(2);
             handler.removeCallbacks(mUpdateTimeTask);
             handler.postDelayed(mUpdateTimeTask,100);
             musicService.setHandler(handler);
@@ -806,5 +872,14 @@ public class MainActivity extends AppCompatActivity implements SongListPopupInte
                 ivNext.setImageBitmap(bitmap);
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mSlidingLayoutState == SlidingLayoutState.EXPANDED){
+            slidingUpPanel.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+        }else {
+            super.onBackPressed();
+        }
     }
 }

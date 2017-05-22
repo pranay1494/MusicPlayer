@@ -18,6 +18,7 @@ public class MusicPOJO {
     private ArrayList<SongsPojo> nowPlayingList = new ArrayList<>();
     private ArrayList<SongsPojo> tempNowPlayingList = new ArrayList<>();
     private ArrayList<SongsPojo> tempListForRepeat = new ArrayList<>();
+    private ArrayList<PlaylistPojo> playlists = new ArrayList<>();
     private int indexOfCurrentSong;
     private int tempIndexOfCurrentSong;
     private int tempIndexForRepeat;
@@ -114,5 +115,17 @@ public class MusicPOJO {
 
     public void addAlbum(AlbumPojo albumPojo){
         albums.add(albumPojo);
+    }
+
+    public ArrayList<PlaylistPojo> getPlaylist() {
+        return playlists;
+    }
+
+    public void setPlaylist(ArrayList<PlaylistPojo> playlist) {
+        this.playlists = playlist;
+    }
+
+    public void addPlaylist(PlaylistPojo playlist) {
+        playlists.add(playlist);
     }
 }
